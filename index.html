@@ -520,19 +520,21 @@ tr:hover .row-action{opacity:1}
 
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Derive a unique school key from the owner's email so each school's data stays separate
+    // Unique, permanent key identifying this school's data in Supabase.
+    // IMPORTANT: once created, this key must NEVER change — not even if the
+    // owner's email changes later. Changing it would orphan all existing
+    // data (leads, members, billing, etc.) because everything is stored
+    // keyed off of it. It is generated once (random + timestamp) the first
+    // time this browser is used and then persisted forever in localStorage.
     function getSchoolKey() {
       var key = localStorage.getItem('gmbmaSchoolKey');
       if (key) return key;
-      if (typeof state !== 'undefined' && state.staff) {
-        var owner = state.staff.find(function(s){ return s.role === 'Owner'; });
-        if (owner && owner.email) {
-          key = owner.email.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-          localStorage.setItem('gmbmaSchoolKey', key);
-          return key;
-        }
-      }
-      return 'default';
+      // No key yet on this browser: create a brand-new random one.
+      // (We intentionally do NOT derive this from the owner's email anymore,
+      // since emails can change and the key must stay stable.)
+      key = 'school_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+      localStorage.setItem('gmbmaSchoolKey', key);
+      return key;
     }
 
     // Save a single lead to Supabase
@@ -3141,11 +3143,9 @@ function doLogin() {
   err.style.display = 'none';
   state.currentUser = staff;
   localStorage.setItem('gmbmaUser', JSON.stringify(staff));
-  // Ensure school key is set (Owner determines the school)
-  if (staff.role === 'Owner') {
-    var sk = staff.email.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-    localStorage.setItem('gmbmaSchoolKey', sk);
-  }
+  // NOTE: school key is intentionally NOT recalculated here. It is set once
+  // (on setup / first run) and must stay fixed even if the owner's email
+  // changes later — otherwise existing data becomes unreachable.
   applyAuth();
 }
 
@@ -3158,9 +3158,8 @@ function doSetup() {
   const staff = { id: Date.now(), name, email, role: 'Owner' };
   state.staff.push(staff);
   state.currentUser = staff;
-  // Set school key from owner email so Firebase data is isolated
-  var sk = email.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-  localStorage.setItem('gmbmaSchoolKey', sk);
+  // Ensure a permanent school key exists (generated once, never tied to email)
+  var sk = getSchoolKey();
   localStorage.setItem('gmbmaUser', JSON.stringify(staff));
   applyAuth();
   renderStaff();
@@ -12666,12 +12665,16 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function finishInit() {
-    // Pre-seed owner account if no staff exists (must happen before Firebase listeners)
+    // Pre-seed owner account if no staff exists (must happen before Firebase listeners).
+    // NOTE: this should only ever run on a truly brand-new browser/account where
+    // Supabase returned nothing AND localStorage has nothing. We do NOT force or
+    // overwrite gmbmaSchoolKey here — getSchoolKey() already guarantees a stable,
+    // permanent key exists, and stomping it with a hardcoded value would disconnect
+    // this browser from any real data that was already saved under its real key.
     if (state.staff.length === 0) {
       var ownerAccount = { id: 1, name: 'Grandmaster Baez', email: 'info@masterbaez.com', role: 'Owner' };
       state.staff.push(ownerAccount);
       localStorage.setItem('gmbmaStaff', JSON.stringify(state.staff));
-      localStorage.setItem('gmbmaSchoolKey', 'info_masterbaez_com');
       if (typeof fbSaveAll === 'function') fbSaveAll();
     }
     renderPrograms();
