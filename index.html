@@ -508,22 +508,17 @@ tr:hover .row-action{opacity:1}
 .card-input-wrapper input:focus{box-shadow:none;border-color:transparent}
 </style>
 
-  <!-- Firebase Realtime Database Integration -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <!-- Supabase Integration -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyC0GZUhbfipXCBeP6LJcXmKcHugNuG2f4E",
-      authDomain: "masterbaez-crm.firebaseapp.com",
-      databaseURL: "https://masterbaez-crm-default-rtdb.firebaseio.com",
-      projectId: "masterbaez-crm",
-      storageBucket: "masterbaez-crm.firebasestorage.app",
-      messagingSenderId: "105620561253",
-      appId: "1:105620561253:web:90516b7e8b25a3a736958c",
-      measurementId: "G-CTHPBGXJLG"
-    };
-    firebase.initializeApp(firebaseConfig);
-    var fbDb = firebase.database();
+    // ============================================================
+    // SUPABASE CONFIGURATION — Replace with your project credentials
+    // ============================================================
+    const SUPABASE_URL = 'https://jpuzbliouywilgbsqesu.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_E-BjPaQd7JXKbRE6ocFfrA_XrBtvxM3'; // Paste your anon/public key here
+    // ============================================================
+
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // Derive a unique school key from the owner's email so each school's data stays separate
     function getSchoolKey() {
@@ -539,57 +534,54 @@ tr:hover .row-action{opacity:1}
       }
       return 'default';
     }
-    function fbSchoolPath(sub) {
-      var sk = getSchoolKey();
-      return 'gmbma/schools/' + sk + '/' + sub;
-    }
 
-    // Save a single lead to Firebase
-    function fbSaveLead(lead) {
+    // Save a single lead to Supabase
+    async function fbSaveLead(lead) {
       try {
-        fbDb.ref(fbSchoolPath('leads/' + lead.id)).set(lead);
-      } catch(e) { console.warn('Firebase save error:', e); }
+        var sk = getSchoolKey();
+        await _supabase.from('leads').upsert({ id: String(lead.id), school_key: sk, data: lead }, { onConflict: 'id,school_key' });
+      } catch(e) { console.warn('Supabase save lead error:', e); }
     }
 
-    // Delete a lead from Firebase
-    function fbDeleteLead(id) {
+    // Delete a lead from Supabase
+    async function fbDeleteLead(id) {
       try {
-        fbDb.ref(fbSchoolPath('leads/' + id)).remove();
-      } catch(e) { console.warn('Firebase delete error:', e); }
+        var sk = getSchoolKey();
+        await _supabase.from('leads').delete().eq('id', String(id)).eq('school_key', sk);
+      } catch(e) { console.warn('Supabase delete lead error:', e); }
     }
 
-    // Update a lead field in Firebase
-    function fbUpdateLead(id, data) {
+    // Update a lead in Supabase
+    async function fbUpdateLead(id, data) {
       try {
-        fbDb.ref(fbSchoolPath('leads/' + id)).update(data);
-      } catch(e) { console.warn('Firebase update error:', e); }
+        var sk = getSchoolKey();
+        var { data: existing } = await _supabase.from('leads').select('data').eq('id', String(id)).eq('school_key', sk).single();
+        var merged = Object.assign({}, existing ? existing.data : {}, data);
+        await _supabase.from('leads').upsert({ id: String(id), school_key: sk, data: merged }, { onConflict: 'id,school_key' });
+      } catch(e) { console.warn('Supabase update lead error:', e); }
     }
 
-    // Listen for real-time lead changes and sync to state
+    // Listen for real-time lead changes
     function fbListenLeads() {
-      var path = fbSchoolPath('leads');
-      fbDb.ref(path).on('value', function(snapshot) {
-        var val = snapshot.val();
-        if (val) {
-          var leads = Object.values(val);
-          if (typeof state !== 'undefined') {
-            state.leads = leads;
-            localStorage.setItem('gmbmaLeads', JSON.stringify(leads));
-            // Refresh leads view if currently visible
-            if (typeof renderKanban === 'function') {
-              try { renderKanban(); } catch(e) {}
+      var sk = getSchoolKey();
+      _supabase.channel('leads-changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'leads', filter: 'school_key=eq.' + sk }, function() {
+          _supabase.from('leads').select('data').eq('school_key', sk).then(function(res) {
+            if (res.data && typeof state !== 'undefined') {
+              state.leads = res.data.map(function(r){ return r.data; });
+              localStorage.setItem('gmbmaLeads', JSON.stringify(state.leads));
+              if (typeof renderKanban === 'function') { try { renderKanban(); } catch(e) {} }
+              if (typeof renderDashboard === 'function') { try { renderDashboard(); } catch(e) {} }
             }
-            if (typeof renderDashboard === 'function') {
-              try { renderDashboard(); } catch(e) {}
-            }
-          }
-        }
-      });
+          });
+        })
+        .subscribe();
     }
 
-    // Save ALL state data to Firebase so it survives browser/device changes
-    function fbSaveAll() {
+    // Save ALL state data to Supabase
+    async function fbSaveAll() {
       try {
+        var sk = getSchoolKey();
         var data = {
           programs: state.programs || [],
           staff: state.staff || [],
@@ -623,67 +615,61 @@ tr:hover .row-action{opacity:1}
           credentials: state.credentials || [],
           shareLinks: state.shareLinks || {}
         };
-        fbDb.ref(fbSchoolPath('data/all')).set(data);
-      } catch(e) { console.warn('Firebase fbSaveAll error:', e); }
+        await _supabase.from('school_data').upsert({ school_key: sk, data: data }, { onConflict: 'school_key' });
+      } catch(e) { console.warn('Supabase fbSaveAll error:', e); }
     }
 
-    // Save settings to Firebase independently
-    function fbSaveSettings(settings) {
+    // Save settings to Supabase
+    async function fbSaveSettings(settings) {
       try {
-        fbDb.ref(fbSchoolPath('settings')).set(settings);
-      } catch(e) { console.warn('Firebase fbSaveSettings error:', e); }
+        var sk = getSchoolKey();
+        await _supabase.from('school_settings').upsert({ school_key: sk, data: settings }, { onConflict: 'school_key' });
+      } catch(e) { console.warn('Supabase fbSaveSettings error:', e); }
     }
 
-    // Load ALL state data from Firebase once on startup
+    // Load ALL state data from Supabase on startup
     function fbLoadAll(callback) {
-      try {
-        fbDb.ref(fbSchoolPath('data/all')).once('value', function(snapshot) {
-          var val = snapshot.val();
-          if (val && typeof state !== 'undefined') {
-            var keys = ['programs','staff','leads','trash','members','attendance','competitions','billing','events','appointments','examNoShows','leaderboard','bonusPoints','pointsConfig','dailyStats','proShopProducts','proShopSales','automationLog','smsCampaigns','emailCampaigns','qrCodes','socialPosts','contentLibrary','automations','customCategories','gateways','conduct','schoolLogo','marketingSpend','credentials','shareLinks'];
-            keys.forEach(function(k) {
-              if (val[k] !== undefined && val[k] !== null) {
-                state[k] = val[k];
-                // Also persist to localStorage
-                var lsKey = 'gmbma' + k.charAt(0).toUpperCase() + k.slice(1);
-                if (k === 'schoolLogo') lsKey = 'gmbmaSchoolLogo';
-                if (k === 'automations') lsKey = 'gmbmaAutomations';
-                if (k === 'customCategories') lsKey = 'gmbmaCustomCategories';
-                if (k === 'gateways') lsKey = 'gmbmaGateways';
-                if (k === 'conduct') lsKey = 'gmbmaConduct';
-                if (k === 'marketingSpend') lsKey = 'gmbmaMarketingSpend';
-                if (k === 'credentials') lsKey = 'gmbmaCredentials';
-                if (k === 'shareLinks') lsKey = 'gmbmaShareLinks';
-                try { localStorage.setItem(lsKey, JSON.stringify(val[k])); } catch(e) {}
-              }
-            });
-          }
-          if (typeof callback === 'function') callback();
-        }, function() {
-          if (typeof callback === 'function') callback();
-        });
-      } catch(e) {
+      var sk = getSchoolKey();
+      _supabase.from('school_data').select('data').eq('school_key', sk).single().then(function(res) {
+        var val = res.data ? res.data.data : null;
+        if (val && typeof state !== 'undefined') {
+          var keys = ['programs','staff','leads','trash','members','attendance','competitions','billing','events','appointments','examNoShows','leaderboard','bonusPoints','pointsConfig','dailyStats','proShopProducts','proShopSales','automationLog','smsCampaigns','emailCampaigns','qrCodes','socialPosts','contentLibrary','automations','customCategories','gateways','conduct','schoolLogo','marketingSpend','credentials','shareLinks'];
+          keys.forEach(function(k) {
+            if (val[k] !== undefined && val[k] !== null) {
+              state[k] = val[k];
+              var lsKey = 'gmbma' + k.charAt(0).toUpperCase() + k.slice(1);
+              if (k === 'schoolLogo') lsKey = 'gmbmaSchoolLogo';
+              if (k === 'automations') lsKey = 'gmbmaAutomations';
+              if (k === 'customCategories') lsKey = 'gmbmaCustomCategories';
+              if (k === 'gateways') lsKey = 'gmbmaGateways';
+              if (k === 'conduct') lsKey = 'gmbmaConduct';
+              if (k === 'marketingSpend') lsKey = 'gmbmaMarketingSpend';
+              if (k === 'credentials') lsKey = 'gmbmaCredentials';
+              if (k === 'shareLinks') lsKey = 'gmbmaShareLinks';
+              try { localStorage.setItem(lsKey, JSON.stringify(val[k])); } catch(e) {}
+            }
+          });
+        }
         if (typeof callback === 'function') callback();
-      }
+      }).catch(function() {
+        if (typeof callback === 'function') callback();
+      });
     }
 
-    // Load settings from Firebase
+    // Load settings from Supabase
     function fbLoadSettings(callback) {
-      try {
-        fbDb.ref(fbSchoolPath('settings')).once('value', function(snapshot) {
-          var val = snapshot.val();
-          if (val) {
-            try { localStorage.setItem('gmbmaSettings', JSON.stringify(val)); } catch(e) {}
-            if (typeof callback === 'function') callback(val);
-          } else {
-            if (typeof callback === 'function') callback(null);
-          }
-        }, function() {
+      var sk = getSchoolKey();
+      _supabase.from('school_settings').select('data').eq('school_key', sk).single().then(function(res) {
+        var val = res.data ? res.data.data : null;
+        if (val) {
+          try { localStorage.setItem('gmbmaSettings', JSON.stringify(val)); } catch(e) {}
+          if (typeof callback === 'function') callback(val);
+        } else {
           if (typeof callback === 'function') callback(null);
-        });
-      } catch(e) {
+        }
+      }).catch(function() {
         if (typeof callback === 'function') callback(null);
-      }
+      });
     }
   </script>
 </head>
@@ -12684,6 +12670,7 @@ document.addEventListener('DOMContentLoaded', function() {
       state.staff.push(ownerAccount);
       localStorage.setItem('gmbmaStaff', JSON.stringify(state.staff));
       localStorage.setItem('gmbmaSchoolKey', 'info_masterbaez_com');
+      if (typeof fbSaveAll === 'function') fbSaveAll();
     }
     renderPrograms();
     renderStaff();
