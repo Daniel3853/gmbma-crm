@@ -615,7 +615,8 @@ tr:hover .row-action{opacity:1}
           credentials: state.credentials || [],
           shareLinks: state.shareLinks || {}
         };
-        await _supabase.from('school_data').upsert({ school_key: sk, data: data }, { onConflict: 'school_key' });
+        var { error: saveErr } = await _supabase.from('school_data').upsert({ school_key: sk, data: data }, { onConflict: 'school_key' });
+        if (saveErr) console.warn('Supabase upsert error:', saveErr);
       } catch(e) { console.warn('Supabase fbSaveAll error:', e); }
     }
 
@@ -623,15 +624,16 @@ tr:hover .row-action{opacity:1}
     async function fbSaveSettings(settings) {
       try {
         var sk = getSchoolKey();
-        await _supabase.from('school_settings').upsert({ school_key: sk, data: settings }, { onConflict: 'school_key' });
+        var { error: settErr } = await _supabase.from('school_settings').upsert({ school_key: sk, data: settings }, { onConflict: 'school_key' });
+        if (settErr) console.warn('Supabase settings upsert error:', settErr);
       } catch(e) { console.warn('Supabase fbSaveSettings error:', e); }
     }
 
     // Load ALL state data from Supabase on startup
     function fbLoadAll(callback) {
       var sk = getSchoolKey();
-      _supabase.from('school_data').select('data').eq('school_key', sk).single().then(function(res) {
-        var val = res.data ? res.data.data : null;
+      _supabase.from('school_data').select('data').eq('school_key', sk).limit(1).then(function(res) {
+        var val = (res.data && res.data.length > 0) ? res.data[0].data : null;
         if (val && typeof state !== 'undefined') {
           var keys = ['programs','staff','leads','trash','members','attendance','competitions','billing','events','appointments','examNoShows','leaderboard','bonusPoints','pointsConfig','dailyStats','proShopProducts','proShopSales','automationLog','smsCampaigns','emailCampaigns','qrCodes','socialPosts','contentLibrary','automations','customCategories','gateways','conduct','schoolLogo','marketingSpend','credentials','shareLinks'];
           keys.forEach(function(k) {
@@ -659,8 +661,8 @@ tr:hover .row-action{opacity:1}
     // Load settings from Supabase
     function fbLoadSettings(callback) {
       var sk = getSchoolKey();
-      _supabase.from('school_settings').select('data').eq('school_key', sk).single().then(function(res) {
-        var val = res.data ? res.data.data : null;
+      _supabase.from('school_settings').select('data').eq('school_key', sk).limit(1).then(function(res) {
+        var val = (res.data && res.data.length > 0) ? res.data[0].data : null;
         if (val) {
           try { localStorage.setItem('gmbmaSettings', JSON.stringify(val)); } catch(e) {}
           if (typeof callback === 'function') callback(val);
