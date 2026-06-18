@@ -707,7 +707,7 @@ tr:hover .row-action{opacity:1}
         <circle cx="14" cy="14" r="12" stroke="#60a5fa" stroke-width="2"/>
         <path d="M10 14l3 3 5-6" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      <span>GMBMA</span>
+      <span id="brand-name">GMBMA</span>
     </div>
     <nav>
       <div class="nav-item active" data-page="dashboard">
@@ -1276,23 +1276,23 @@ tr:hover .row-action{opacity:1}
                 <div class="flex gap-2" style="margin-bottom:10px;align-items:center">
                   <label class="text-sm font-semibold" style="white-space:nowrap">Template:</label>
                   <select id="waiver-template-select" onchange="switchWaiverTemplate(this.value)" style="flex:1;font-size:12px;padding:4px 8px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg)">
-                    <option value="default">Grand Master Baez Martial Arts</option>
+                    <option value="default">Your School Name</option>
                     <option value="united">United Martial Arts LLC</option>
                   </select>
                 </div>
                 <div class="waiver-text" id="waiver-text">
                   <div class="waiver-letterhead">
-                    <h2 id="waiver-school-name">Grand Master Baez Martial Arts</h2>
+                    <h2 id="waiver-school-name">Your School Name</h2>
                     <p id="waiver-school-info">123 Main Street, Springfield, IL 62701 &bull; (555) 123-4567 &bull; info@gmbma.com</p>
                   </div>
                   <h5>1. Assumption of Risk</h5>
                   <p>I acknowledge that participation in martial arts training involves inherent risks, including but not limited to physical injury, property damage, or death. I voluntarily assume all such risks.</p>
                   <h5>2. Release of Liability</h5>
-                  <p>I hereby release and discharge Grand Master Baez Martial Arts, its owners, employees, and instructors from any and all claims, demands, or causes of action arising from my participation in activities.</p>
+                  <p>I hereby release and discharge Your School Name, its owners, employees, and instructors from any and all claims, demands, or causes of action arising from my participation in activities.</p>
                   <h5>3. Medical Treatment</h5>
                   <p>I consent to receive medical treatment deemed necessary in case of injury. I understand that I am responsible for all medical costs incurred.</p>
                   <h5>4. Photo Release</h5>
-                  <p>I grant Grand Master Baez Martial Arts permission to use photographs and videos of me for promotional purposes without compensation.</p>
+                  <p>I grant Your School Name permission to use photographs and videos of me for promotional purposes without compensation.</p>
                   <h5>5. Rules &amp; Regulations</h5>
                   <p>I agree to follow all school rules and policies. I understand that failure to comply may result in dismissal without refund.</p>
                 </div>
@@ -1785,7 +1785,7 @@ tr:hover .row-action{opacity:1}
             <div class="form-row">
               <div class="form-section">
                 <label data-i18n="settings_school_name">School Name</label>
-                <input id="settings-school-name" value="Grand Master Baez Martial Arts">
+                <input id="settings-school-name" value="Your School Name">
               </div>
               <div class="form-section">
                 <label data-i18n="settings_email">Email</label>
@@ -1815,7 +1815,7 @@ tr:hover .row-action{opacity:1}
             <div class="form-row">
               <div class="form-section">
                 <label data-i18n="settings_owner_name">Owner Name</label>
-                <input id="settings-owner-name" value="Grandmaster Daniel Baez">
+                <input id="settings-owner-name" value="Your School">
               </div>
               <div class="form-section">
                 <label data-i18n="settings_cell_phone">Cell Phone</label>
@@ -1989,7 +1989,7 @@ tr:hover .row-action{opacity:1}
           <div class="card-body">
             <div class="flex flex-wrap gap-3 items-center mb-2 share-link-row" id="row-link-lead">
               <span style="flex:1;min-width:120px" class="text-sm font-semibold" data-i18n="link_lead_capture">Lead Capture:</span>
-              <span style="flex:2;font-size:13px;color:var(--muted);word-break:break-all" id="link-lead">https://daniel3853.github.io/crm-masterbaez/lead-capture.html</span>
+              <span style="flex:2;font-size:13px;color:var(--muted);word-break:break-all" id="link-lead">https://yourschool.com/lead-capture</span>
               <button class="btn btn-secondary btn-sm copy-btn" onclick="copyLink('link-lead')" data-i18n="btn_copy">Copy</button>
               <button class="btn btn-secondary btn-sm" onclick="editShareLink('link-lead')" title="Editar">&#x270E; Editar</button>
               <button class="btn btn-danger btn-sm" onclick="trashShareLink('row-link-lead','link-lead')" title="Eliminar">&#x2715; Eliminar</button>
@@ -2086,7 +2086,7 @@ tr:hover .row-action{opacity:1}
         <circle cx="14" cy="14" r="12" stroke="#60a5fa" stroke-width="2"/>
         <path d="M10 14l3 3 5-6" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      <h2 style="margin:0">GMBMA</h2>
+      <h2 style="margin:0" id="login-brand-name">GMBMA</h2>
     </div>
     <p class="text-sm text-muted mb-4" id="login-subtitle" style="letter-spacing:0.3px">Sign in to your account</p>
     <div id="login-form">
@@ -2914,11 +2914,11 @@ tr:hover .row-action{opacity:1}
     <div id="agreement-customize" style="display:none;margin-top:12px;padding:12px;background:var(--bg);border-radius:var(--radius)">
       <p class="text-sm font-semibold mb-2" data-i18n="customize_agreement">Customize Agreement</p>
       <div class="form-row">
-        <div class="form-section"><label data-i18n="school_name_label">School Name</label><input id="ag-school" value="Grand Master Baez Martial Arts"></div>
+        <div class="form-section"><label data-i18n="school_name_label">School Name</label><input id="ag-school" value="Your School Name"></div>
         <div class="form-section"><label data-i18n="address_label">Address</label><input id="ag-address" value="123 Main Street, Springfield, IL 62701"></div>
       </div>
       <div class="form-row">
-        <div class="form-section"><label data-i18n="phone_label">Phone</label><input id="ag-phone" value="(954) 954-380-1340" oninput="formatPhoneInput(this)"></div>
+        <div class="form-section"><label data-i18n="phone_label">Phone</label><input id="ag-phone" value="(954) " oninput="formatPhoneInput(this)"></div>
         <div class="form-section"><label>Email</label><input id="ag-email" value="info@gmbma.com"></div>
       </div>
       <div class="form-section">
@@ -3164,7 +3164,7 @@ const state = {
     {id:5, name:'Karate Fundamentals', type:'Kids', price:99, discount:10}
   ],
   staff: [
-    {id:1, name:'Grandmaster Daniel Baez', email:'marketingusadb@gmail.com', role:'Owner'},
+    {id:1, name:'Your School', email:'marketingusadb@gmail.com', role:'Owner'},
     {id:2, name:'Maria Santos', email:'maria@gmbma.com', role:'Manager'},
     {id:3, name:'James Chen', email:'james@gmbma.com', role:'Instructor'},
     {id:4, name:'Sarah Williams', email:'sarah@gmbma.com', role:'Instructor'},
@@ -3850,7 +3850,7 @@ function lbRenderDoc() {
   var cfg = state.pointsConfig;
   var builtins = lbGetBuiltins();
   var customs = state.customCategories || [];
-  var school = (state.schoolName || 'Grand Master Baez Martial Arts');
+  var school = (state.schoolName || 'Your School Name');
   var now = new Date();
   var monthName = now.toLocaleDateString(isEs?'es-ES':'en-US', {month:'long', year:'numeric'});
 
@@ -3896,7 +3896,7 @@ function lbGetDocText() {
   var cfg = state.pointsConfig;
   var builtins = lbGetBuiltins();
   var customs = state.customCategories || [];
-  var school = (state.schoolName || 'Grand Master Baez Martial Arts');
+  var school = (state.schoolName || 'Your School Name');
   var now = new Date();
   var monthName = now.toLocaleDateString(isEs?'es-ES':'en-US', {month:'long', year:'numeric'});
   var lines = [school, isEs ? 'Tabla de L\u00edderes \u2014 Puntos ('+monthName+')' : 'Leaderboard \u2014 Points Rules ('+monthName+')', ''];
@@ -3918,7 +3918,7 @@ function lbPrintDoc() {
 function lbShareDoc(channel) {
   var isEs = currentLang==='es';
   var text = lbGetDocText();
-  var school = (state.schoolName || 'Grand Master Baez Martial Arts');
+  var school = (state.schoolName || 'Your School Name');
   if (channel==='copy') {
     navigator.clipboard.writeText(text).then(function(){
       toast(isEs ? '\ud83d\udccb Texto copiado' : '\ud83d\udccb Text copied', 'success');
@@ -4143,7 +4143,7 @@ function renderDashboard() {
     });
     var now3 = new Date();
     var monthNameLB = now3.toLocaleDateString(isEsLB?'es-ES':'en-US', {month:'long', year:'numeric'});
-    var schoolLB = (state.schoolName || 'Grand Master Baez Martial Arts');
+    var schoolLB = (state.schoolName || 'Your School Name');
     var rulesDocHdr = '<div style="background:#fff;border-radius:8px;padding:20px 24px;color:#222;font-family:Georgia,serif;border:1px solid #e5e7eb;font-size:12px;line-height:1.7;margin-top:14px">'+
       '<div style="text-align:center;border-bottom:3px solid #7c3aed;padding-bottom:12px;margin-bottom:14px">'+
       '<div style="font-size:16px;font-weight:800;color:#1a0a2e">'+schoolLB+'</div>';
@@ -7491,7 +7491,7 @@ function buildAuthDocHtml() {
   const cardExpiry = $('pp-card-expiry').value.trim() || '________________';
   const cardCvc = $('pp-card-cvc').value.trim() || '___';
   const date = new Date().toLocaleDateString();
-  const schoolName = (function(){ try{const s=JSON.parse(localStorage.getItem('gmbmaSettings'));return s&&s.school?s.school.name:'Grand Master Baez Martial Arts';}catch(e){return 'Grand Master Baez Martial Arts';}})();
+  const schoolName = (function(){ try{const s=JSON.parse(localStorage.getItem('gmbmaSettings'));return s&&s.school?s.school.name:'Your School Name';}catch(e){return 'Your School Name';}})();
   const totalAmount = parseFloat(amount).toFixed(2);
   const baseAmount = (parseFloat(amount) / 1.035).toFixed(2);
   const convenienceFee = (parseFloat(amount) * 0.035 / 1.035).toFixed(2);
@@ -7588,7 +7588,7 @@ function shareAuthDoc(channel) {
   const name = $('pp-checkout-name').value.trim() || 'Student';
   const amount = $('pp-checkout-amount').value || '0.00';
   const desc = $('pp-checkout-desc').value || 'Payment';
-  const schoolName = (function(){ try{const s=JSON.parse(localStorage.getItem('gmbmaSettings'));return s&&s.school?s.school.name:'Grand Master Baez Martial Arts';}catch(e){return 'Grand Master Baez Martial Arts';}})();
+  const schoolName = (function(){ try{const s=JSON.parse(localStorage.getItem('gmbmaSettings'));return s&&s.school?s.school.name:'Your School Name';}catch(e){return 'Your School Name';}})();
   const msg = t('pp_share_msg').replace('{school}', schoolName).replace('{name}', name).replace('{amount}', amount).replace('{desc}', desc);
   const url = getPaymentRedirectUrl() || 'https://gmbma.app/checkout';
   switch (channel) {
@@ -8924,9 +8924,9 @@ function processClauseBody(body, schoolName, pricingRows) {
 
 function generateDefaultAgreement() {
   const now = new Date().toLocaleDateString();
-  const schoolName = ($('ag-school') && $('ag-school').value) || 'Grand Master Baez Martial Arts';
+  const schoolName = ($('ag-school') && $('ag-school').value) || 'Your School Name';
   const address = ($('ag-address') && $('ag-address').value) || '123 Main Street, Springfield, IL 62701';
-  const phone = ($('ag-phone') && $('ag-phone').value) || '(954) 954-380-1340';
+  const phone = ($('ag-phone') && $('ag-phone').value) || '(954) ';
   const email = ($('ag-email') && $('ag-email').value) || 'info@gmbma.com';
   const programs = collectAgPrograms();
   const pricingRows = programs.length ? '<table><tr><th>' + t('doc_program') + '</th><th>' + t('doc_monthly_rate') + '</th></tr>' + programs.map(p =>
@@ -9017,7 +9017,7 @@ function viewTemplate(id) {
   const t = state.templates.find(t => t.id === id);
   if (!t) return;
   const raw = getRawHtml(t);
-  const schoolName = ($('ag-school') && $('ag-school').value) || 'Grand Master Baez Martial Arts';
+  const schoolName = ($('ag-school') && $('ag-school').value) || 'Your School Name';
   const now = new Date().toLocaleDateString();
   const sigBlock = t.signed && t.signatureData
     ? '<div style="position:fixed;bottom:20px;right:20px;background:#fff;border:1px solid #ddd;padding:10px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1);text-align:center;z-index:999">' +
@@ -9072,7 +9072,7 @@ function viewTemplate(id) {
 function downloadTemplate(id) {
   const t = state.templates.find(t => t.id === id);
   if (!t) return;
-  const schoolName = ($('ag-school') && $('ag-school').value) || 'Grand Master Baez Martial Arts';
+  const schoolName = ($('ag-school') && $('ag-school').value) || 'Your School Name';
   const now = new Date().toLocaleDateString();
   let body = '<h1 style="text-align:center;font-size:22pt">' + t.name + '</h1>' +
     '<p style="text-align:center;color:#666;font-size:12pt">' + schoolName + '</p>' +
@@ -9114,7 +9114,7 @@ function emailTemplate(id) {
   if (!t) return;
   const recipient = prompt('Enter recipient email:');
   if (!recipient) return;
-  const schoolName = ($('ag-school') && $('ag-school').value) || 'Grand Master Baez Martial Arts';
+  const schoolName = ($('ag-school') && $('ag-school').value) || 'Your School Name';
   const subject = encodeURIComponent('Document: ' + t.name);
   const bodyText = encodeURIComponent('Hello,\n\nPlease find the document "' + t.name + '" from ' + schoolName + '.\n\n' +
     (t.signed ? 'Status: Signed on ' + new Date(t.signedAt).toLocaleDateString() : 'Status: Unsigned') +
@@ -9133,7 +9133,7 @@ function emailTemplate(id) {
 function whatsappTemplate(id) {
   const t = state.templates.find(t => t.id === id);
   if (!t) return;
-  const schoolName = ($('ag-school') && $('ag-school').value) || 'Grand Master Baez Martial Arts';
+  const schoolName = ($('ag-school') && $('ag-school').value) || 'Your School Name';
   const text = encodeURIComponent('Hello! I am sending you the document "' + t.name + '" from ' + schoolName + ' for your review and signature.\n\n' +
     (t.signed ? 'Status: Signed on ' + new Date(t.signedAt).toLocaleDateString() : 'Status: Unsigned - Please sign when you receive it.') +
     '\n\nPlease let me know if you have any questions.');
@@ -9558,26 +9558,26 @@ const DEFAULT_LEARNING_DATA = {
   guides: [
     {icon:'&#x1F680;', title:'Your 7-Day Free Trial', desc:'New to GMBMA? Start here. Everything you need to know about your trial, what to test each day, and how to enroll when you\'re ready.', cat:'Getting Started', time:'5 min read', titleEs:'Tu Prueba Gratuita de 7 Días', descEs:'¿Nuevo en GMBMA? Empieza aquí. Todo lo que necesitas saber sobre tu prueba, qué probar cada día y cómo suscribirte cuando estés listo.', catEs:'Primeros Pasos', timeEs:'5 min de lectura', content:CONTENT_EN_ES([
 {title:'Welcome to Your 7-Day Test Drive', body:'We\'re thrilled to have you here. GMBMA CRM was built by martial artists for martial artists — and your 7-day free trial is your chance to experience everything it can do for your school before committing to anything. No credit card required. No hoops to jump through. Just log in and explore.<br><br><div class="flex gap-4 flex-wrap" style="margin:12px 0"><div style="flex:1;min-width:140px;padding:12px 16px;border-radius:8px;background:#dcfce7;border:1px solid #86efac;color:#166534;font-size:13px;line-height:1.5"><strong style="color:#14532d">✅ All Features Unlocked</strong><br>Every GMBMA feature is available on day 1 — nothing is hidden behind a paywall during the trial</div><div style="flex:1;min-width:140px;padding:12px 16px;border-radius:8px;background:#fef9c3;border:1px solid #fde047;color:#713f12;font-size:13px;line-height:1.5"><strong style="color:#422006">🔓 Zero Commitment</strong><br>No credit card required. The trial simply ends after 7 days — you choose whether to subscribe</div><div style="flex:1;min-width:140px;padding:12px 16px;border-radius:8px;background:#dbeafe;border:1px solid #93c5fd;color:#1e3a8a;font-size:13px;line-height:1.5"><strong style="color:#1e3a8a">💾 Your Data Carries Over</strong><br>Everything you add during the trial — students, leads, payments — transfers instantly to your paid account</div></div><br><strong>What You\'ll Know by Day 7</strong><br>• Whether GMBMA can replace your current student management system<br>• How automated lead follow-ups and email sequences feel in practice<br>• What your Dashboard and Reports look like with real school data<br>• How easy it is to collect payments online via your checkout link<br>• Whether the SMS/email automation saves you meaningful time each week<br><br><em>You\'re in the Founders Club. Early GMBMA schools get locked-in founding member pricing when they subscribe — prices only go up for new schools joining later. Your 7 days also count toward that founding member status.</em><br><br>The best way to evaluate any CRM is with real data. We recommend adding a few of your actual students and leads during the trial — not fake test data. Since everything carries over when you subscribe, none of that setup time is wasted.'},
-{title:'How to Sign Up for Your Trial', body:'Getting started takes less than 2 minutes. Here\'s the complete signup flow from visiting the trial page to landing inside your GMBMA dashboard for the first time.<br><br><strong>Trial Signup — Step by Step</strong><br><span class="text-xs text-muted">~2 minutes</span><br><br><strong>1.</strong> Contact us at <strong>info@masterbaez.com</strong> to request your trial link<br>We\'ll send you a direct signup link within a few hours — usually much faster.<br><br><strong>2.</strong> Click your personalized trial link to open the signup page<br>The trial signup page is separate from the main GMBMA login page.<br><br><strong>3.</strong> Enter your school name, your full name, email address, and phone<br>Use your real email — this becomes your GMBMA login and where trial notifications are sent.<br><br><strong>4.</strong> Click "Start My Free Trial" — your account is created instantly<br>No credit card, no payment info required at this stage.<br><br><strong>5.</strong> You\'ll be redirected to the onboarding wizard automatically<br>The wizard guides you through your first setup in 5 easy steps.<br><br><strong>6.</strong> Your 7-day trial clock starts the moment your account is created<br>You\'ll see your trial status and expiry date in your Settings page.<br><br><strong>What the Onboarding Wizard Covers</strong><br>• Choose your subscription tier (preview — no charge during trial)<br>• Enter your school name and contact info<br>• Upload your school logo<br>• Set your school address and location<br>• Review your shareable links (lead form, checkout, waiver)<br>• Complete setup and land on your Dashboard<br><br><em>Already have a GMBMA account? If you\'ve signed up before or have questions about accessing an existing trial, email us at info@masterbaez.com and we\'ll sort it out quickly.</em><br><br>Don\'t skip the onboarding wizard — it only takes 5 minutes and gets your school profile, logo, and shareable links set up. Starting with a complete profile means your lead form looks professional from day 1 of the trial.'},
+{title:'How to Sign Up for Your Trial', body:'Getting started takes less than 2 minutes. Here\'s the complete signup flow from visiting the trial page to landing inside your GMBMA dashboard for the first time.<br><br><strong>Trial Signup — Step by Step</strong><br><span class="text-xs text-muted">~2 minutes</span><br><br><strong>1.</strong> Contact us at <strong>your@email.com</strong> to request your trial link<br>We\'ll send you a direct signup link within a few hours — usually much faster.<br><br><strong>2.</strong> Click your personalized trial link to open the signup page<br>The trial signup page is separate from the main GMBMA login page.<br><br><strong>3.</strong> Enter your school name, your full name, email address, and phone<br>Use your real email — this becomes your GMBMA login and where trial notifications are sent.<br><br><strong>4.</strong> Click "Start My Free Trial" — your account is created instantly<br>No credit card, no payment info required at this stage.<br><br><strong>5.</strong> You\'ll be redirected to the onboarding wizard automatically<br>The wizard guides you through your first setup in 5 easy steps.<br><br><strong>6.</strong> Your 7-day trial clock starts the moment your account is created<br>You\'ll see your trial status and expiry date in your Settings page.<br><br><strong>What the Onboarding Wizard Covers</strong><br>• Choose your subscription tier (preview — no charge during trial)<br>• Enter your school name and contact info<br>• Upload your school logo<br>• Set your school address and location<br>• Review your shareable links (lead form, checkout, waiver)<br>• Complete setup and land on your Dashboard<br><br><em>Already have a GMBMA account? If you\'ve signed up before or have questions about accessing an existing trial, email us at your@email.com and we\'ll sort it out quickly.</em><br><br>Don\'t skip the onboarding wizard — it only takes 5 minutes and gets your school profile, logo, and shareable links set up. Starting with a complete profile means your lead form looks professional from day 1 of the trial.'},
 {title:'Your First 30 Minutes (Day 1)', body:'<span class="badge badge-yellow">Day 1</span> Get your school set up and see GMBMA come to life with real data.<br><br><strong>Day 1 Quick-Start Checklist</strong><br><br><strong>☐ Complete the onboarding wizard</strong> <span class="text-xs text-muted">5 min</span><br>School info, logo, address — takes 5 minutes. Sets up your shareable links automatically.<br><br><strong>☐ Fill in Settings fully</strong> <span class="text-xs text-muted">5 min</span><br>Add your Brevo API key (free at brevo.com), owner cell, and any integrations. This unlocks email features.<br><br><strong>☐ Add 3–5 real students to Members</strong> <span class="text-xs text-muted">10 min</span><br>Fill in their name, belt rank, program, and contact info. This is how the Members page is meant to look.<br><br><strong>☐ Check in a student via Attendance</strong> <span class="text-xs text-muted">2 min</span><br>Go to Attendance → search the student → tap Check In. Watch the Dashboard stats update instantly.<br><br><strong>☐ Explore your Dashboard</strong> <span class="text-xs text-muted">5 min</span><br>See your active member count, recent attendance, alerts, and upcoming appointments all in one view.<br><br>After day 1 you should have a populated Dashboard that actually looks like a real school. That\'s the moment GMBMA "clicks" for most school owners — when they see their students, attendance numbers, and upcoming appointments all in one place instead of scattered across spreadsheets and notes.'},
 {title:'Days 2–3: Explore the Core Features', body:'<span class="badge badge-yellow">Day 2 & 3</span> Dig into the four pillars of student management.<br><br>Everything is sandboxed to your school account — try things freely, make mistakes, delete test data. There\'s zero risk during the trial.<br><br><strong>Leads — Test the Lead Pipeline</strong><br>1. Go to Leads → Add Lead with a test name and phone number<br>2. Watch the lead card appear with its automated follow-up status<br>3. Check how SMS and email follow-ups would fire (requires Twilio/Brevo)<br>4. Try converting the lead to a student using the "Convert" button<br><br><strong>Calendar — Schedule a Trial Lesson</strong><br>1. Go to Calendar → click any time slot or "+ Add Appointment"<br>2. Create a trial lesson appointment linked to one of your leads<br>3. See the appointment on the weekly calendar view<br>4. Check the Dashboard — appointments appear in the Upcoming section<br><br><strong>Billing — Record a Test Payment</strong><br>1. Go to Billing → "Record Payment" → select one of your test students<br>2. Enter an amount and payment type (cash, card, etc.)<br>3. Save — the payment appears in the Payments list and in Reports<br>4. Visit the shareable checkout link to see the online payment experience<br><br><strong>Pro Shop — Add a Product & Sale</strong><br>1. Go to Pro Shop → Inventory tab → "Add Product"<br>2. Add a uniform or sparring gear item with price and stock count<br>3. Go to Sales tab → "Record Sale" → sell the item to a test student<br>4. Check the inventory count decremented automatically'},
 {title:'Days 4–5: Marketing & Automation', body:'<span class="badge badge-yellow">Day 4 & 5</span> Discover the tools that grow your school on autopilot.<br><br>Marketing and automation are where GMBMA really sets itself apart from basic student management software.<br><br><strong>Marketing Hub — Your Growth Engine</strong><br>• <strong>Lead Capture Form</strong> — Copy your form link from Settings and open it in a new tab — see what prospects see when they find your school online<br>• <strong>Email Campaign</strong> — Go to Marketing → Email → "Create Campaign" — draft a test email to your student list and preview it before sending<br>• <strong>QR Code Tracking</strong> — Create a tracking link for "Window Sign" — GMBMA generates a QR code you can track scans from<br>• <strong>SMS Campaign</strong> — If Twilio is set up, draft an SMS blast to your active students — preview the message before sending<br><br><strong>Social Media — AI Content Generator</strong><br>1. Go to Social Media → "Create Post" → select a post type (Motivational, Promo, Class Highlight, etc.)<br>2. Click "Generate with AI" — GMBMA drafts a caption tailored to your school in seconds<br>3. Edit the caption, add your post to the Calendar, and schedule it for any date<br>4. Browse the Content Library for evergreen post ideas you can use year-round<br><br><em>SMS during the trial is optional. You can explore Marketing, Social Media, and the lead form fully without setting up Twilio.</em><br><br>Try the AI social post generator even if you\'re skeptical. Select "Motivational" as the type, enter your school name, and hit Generate. Most school owners are surprised by the quality.'},
 {title:'Days 6–7: Reports & Decision Time', body:'<span class="badge badge-yellow">Day 6 & 7</span> See your school\'s data in full. Make your decision.<br><br>The final two days are for stepping back and looking at the big picture. By now you have real data in GMBMA — students, attendance, payments, leads. Reports shows you all of it visualized and summarized.<br><br><strong>Reports Tabs to Explore on Day 6</strong><br>• <strong>Members tab:</strong> See your student count by status, program, and belt rank<br>• <strong>Attendance tab:</strong> View attendance trends over time<br>• <strong>Financials tab:</strong> Revenue summary, payment breakdown by type, P&L overview including pro shop<br>• <strong>Leads tab:</strong> See how many leads were added, converted, and lost during your trial week<br>• <strong>Belt Testing tab:</strong> Track upcoming belt test eligibility based on attendance minimums<br><br><strong>What Happens When the Trial Expires</strong><br>• <strong>Account locks:</strong> On day 8, your CRM screens will show a "Trial Expired" screen. You can\'t add or view data.<br>• <strong>Data is preserved:</strong> Everything you entered is safely stored and waiting.<br>• <strong>Instant unlock:</strong> The moment you subscribe, your account unlocks and all your data is right where you left it.<br>• <strong>No data loss:</strong> Not a single record is deleted during or after the trial.<br><br>On Day 7, set aside 15 quiet minutes to open Reports and just look at the numbers. Seeing your school\'s data laid out in clean charts is often what makes the decision feel obvious.'},
 {title:'What Happens After the Trial', body:'If you decide GMBMA is the right fit — and we think you will — subscribing takes about 2 minutes. All of your trial data carries over instantly and your account unlocks the moment your plan is active.<br><br><strong>The 3 GMBMA Subscription Tiers</strong><br><br><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:12px 0"><div class="stat-card" style="text-align:center"><div style="font-size:28px">🐾</div><strong>GMBMA Cub</strong><br><span class="text-xs text-muted">Contact for pricing</span><br><span class="text-xs">Perfect for smaller schools just getting started. Covers all the core features.</span></div><div class="stat-card" style="text-align:center"><div style="font-size:28px">🐆</div><strong>GMBMA Prowler</strong><br><span class="text-xs text-muted">Contact for pricing</span><br><span class="text-xs">For growing schools that need the full marketing suite.</span></div><div class="stat-card" style="text-align:center"><div style="font-size:28px">🦁</div><strong>GMBMA Apex</strong><br><span class="text-xs text-muted">Contact for pricing</span><br><span class="text-xs">For established or multi-location schools that want everything.</span></div></div><br><strong>Everything Carries Over — Nothing Is Lost</strong><br>• All student profiles and belt ranks<br>• All payment and billing history<br>• All leads and lead notes<br>• Attendance records and history<br>• School settings, logo, and profile<br>• Programs, pricing, and member types<br>• Shareable links (same URLs)<br>• Pro shop products and inventory<br>• Social posts and content library<br>• All agreements and documents<br><br><em>Founders Club members lock in their pricing permanently — GMBMA pricing only increases for new schools joining later. Email us to get current pricing before your trial ends.</em>'},
-{title:'Questions? We\'re Here to Help', body:'Have a question during your trial? Not sure which plan is right for your school? Ready to subscribe? Contact us directly. We respond personally, usually within a few hours.<br><br><div style="text-align:center;padding:20px;background:#ede9fe;border-radius:8px;margin:12px 0;border:1px solid #c4b5fd"><strong style="font-size:18px;color:#4c1d95">Grandmaster Daniel Baez</strong><br><span class="text-sm" style="color:#5b21b6">info@masterbaez.com</span><br><span class="text-sm" style="color:#5b21b6">954-380-1340</span><br><span class="text-xs text-muted" style="color:#7c3aed">Typical response time: within a few hours</span></div><br><strong>What to Email Us About</strong><br>• Ready to enroll — which plan should I choose?<br>• Current pricing for each tier<br>• Feature questions not covered in the guides<br>• Setup help during your trial<br>• Multi-location or franchise inquiries<br>• Technical issues or something not working<br>• Requesting a demo walkthrough call<br>• Trouble accessing your trial account<br><br><strong>Ready to Enroll?</strong><br>When you\'re ready to subscribe after your trial, email us with your school name and which tier you\'re interested in. We\'ll get your account activated.'},
+{title:'Questions? We\'re Here to Help', body:'Have a question during your trial? Not sure which plan is right for your school? Ready to subscribe? Contact us directly. We respond personally, usually within a few hours.<br><br><div style="text-align:center;padding:20px;background:#ede9fe;border-radius:8px;margin:12px 0;border:1px solid #c4b5fd"><strong style="font-size:18px;color:#4c1d95">Your School</strong><br><span class="text-sm" style="color:#5b21b6">your@email.com</span><br><span class="text-sm" style="color:#5b21b6"></span><br><span class="text-xs text-muted" style="color:#7c3aed">Typical response time: within a few hours</span></div><br><strong>What to Email Us About</strong><br>• Ready to enroll — which plan should I choose?<br>• Current pricing for each tier<br>• Feature questions not covered in the guides<br>• Setup help during your trial<br>• Multi-location or franchise inquiries<br>• Technical issues or something not working<br>• Requesting a demo walkthrough call<br>• Trouble accessing your trial account<br><br><strong>Ready to Enroll?</strong><br>When you\'re ready to subscribe after your trial, email us with your school name and which tier you\'re interested in. We\'ll get your account activated.'},
 {title:'Pro Tips for Your Trial', body:'Here are some pro tips to get the most out of your 7-day trial:<br><br><strong>1.</strong> Add your real students during the trial — not fake test names. Since 100% of your data carries over when you subscribe, none of that setup time is wasted.<br><br><strong>2.</strong> Set up your Brevo API key on day 1 (brevo.com — free for up to 300 emails/day, no credit card needed). Getting this connected early means you can test automated lead follow-ups during your trial.<br><br><strong>3.</strong> Share your lead capture form link with a trusted friend and have them submit a fake inquiry. Then watch the full pipeline: the lead appears instantly, the automated follow-up fires, and you can move them through the pipeline.<br><br><strong>4.</strong> On Day 5, try the checkout page with a Stripe test card: 4242 4242 4242 4242 (any future expiry, any CVC). Complete a fake payment and watch it appear automatically in Billing.<br><br><strong>5.</strong> Block out 15 minutes on Day 7 to open Reports and review every tab. Most school owners tell us this is the moment the decision became obvious.'},
-{title:'Quick Reference: Trial Cheat Sheet', body:'<div style="overflow-x:auto"><table class="mini-table"><tr><th>Day</th><th>Focus</th></tr><tr><td>Day 1</td><td>Onboarding wizard → Settings → Add students → First attendance check-in</td></tr><tr><td>Day 2</td><td>Add leads → Create appointments in Calendar → Record first payment</td></tr><tr><td>Day 3</td><td>Pro Shop setup → Add products → Record a sale</td></tr><tr><td>Day 4</td><td>Marketing Hub → Email campaign → Lead form → QR tracking link</td></tr><tr><td>Day 5</td><td>Social Media → AI content generator → Schedule posts → Test checkout</td></tr><tr><td>Day 6</td><td>Reports → All tabs → Attendance trends → Financial summary</td></tr><tr><td>Day 7</td><td>15-min Reports review → Make your decision → Email to enroll</td></tr></table></div><br><strong>Features to Test</strong><br>Add students, Check in attendance, Dashboard stats, Add a lead, Create appointment, Record payment, Checkout link, Pro shop sale, Email campaign, Lead capture form, QR tracking, AI social post, Reports tabs, Shareable links, Settings & logo<br><br><strong>Carries Over to Paid Account</strong><br>Everything — students, leads, payments, attendance, settings, logo, programs, pro shop, documents, social posts, appointments, tracking links. Nothing is deleted.<br><br><div style="text-align:center;padding:16px;margin-top:12px;border-top:1px solid #e5e7eb"><strong>Grandmaster Daniel Baez</strong><br><span class="text-sm">info@masterbaez.com</span><br><span class="text-sm">954-380-1340</span></div>'}
+{title:'Quick Reference: Trial Cheat Sheet', body:'<div style="overflow-x:auto"><table class="mini-table"><tr><th>Day</th><th>Focus</th></tr><tr><td>Day 1</td><td>Onboarding wizard → Settings → Add students → First attendance check-in</td></tr><tr><td>Day 2</td><td>Add leads → Create appointments in Calendar → Record first payment</td></tr><tr><td>Day 3</td><td>Pro Shop setup → Add products → Record a sale</td></tr><tr><td>Day 4</td><td>Marketing Hub → Email campaign → Lead form → QR tracking link</td></tr><tr><td>Day 5</td><td>Social Media → AI content generator → Schedule posts → Test checkout</td></tr><tr><td>Day 6</td><td>Reports → All tabs → Attendance trends → Financial summary</td></tr><tr><td>Day 7</td><td>15-min Reports review → Make your decision → Email to enroll</td></tr></table></div><br><strong>Features to Test</strong><br>Add students, Check in attendance, Dashboard stats, Add a lead, Create appointment, Record payment, Checkout link, Pro shop sale, Email campaign, Lead capture form, QR tracking, AI social post, Reports tabs, Shareable links, Settings & logo<br><br><strong>Carries Over to Paid Account</strong><br>Everything — students, leads, payments, attendance, settings, logo, programs, pro shop, documents, social posts, appointments, tracking links. Nothing is deleted.<br><br><div style="text-align:center;padding:16px;margin-top:12px;border-top:1px solid #e5e7eb"><strong>Your School</strong><br><span class="text-sm">your@email.com</span><br><span class="text-sm"></span></div>'}
 ],[
 {title:'Bienvenido a tu prueba gratuita de 7 días', body:'Estamos emocionados de tenerte aquí. GMBMA CRM fue construido por artistas marciales para artistas marciales — y tu prueba gratuita de 7 días es tu oportunidad de experimentar todo lo que puede hacer por tu escuela antes de comprometerte. Sin necesidad de tarjeta de crédito. Sin obstáculos. Solo inicia sesión y explora.<br><br><div class="flex gap-4 flex-wrap" style="margin:12px 0"><div style="flex:1;min-width:140px;padding:12px 16px;border-radius:8px;background:#dcfce7;border:1px solid #86efac;color:#166534;font-size:13px;line-height:1.5"><strong style="color:#14532d">✅ Todas las funciones desbloqueadas</strong><br>Cada función de GMBMA está disponible desde el día 1 — nada está oculto durante la prueba</div><div style="flex:1;min-width:140px;padding:12px 16px;border-radius:8px;background:#fef9c3;border:1px solid #fde047;color:#713f12;font-size:13px;line-height:1.5"><strong style="color:#422006">🔓 Sin compromiso</strong><br>Sin tarjeta de crédito. La prueba termina después de 7 días — tú decides si suscribirte</div><div style="flex:1;min-width:140px;padding:12px 16px;border-radius:8px;background:#dbeafe;border:1px solid #93c5fd;color:#1e3a8a;font-size:13px;line-height:1.5"><strong style="color:#1e3a8a">💾 Tus datos se transfieren</strong><br>Todo lo que agregues durante la prueba — estudiantes, leads, pagos — se transfiere instantáneamente a tu cuenta de pago</div></div><br><strong>Qué sabrás para el día 7</strong><br>• Si GMBMA puede reemplazar tu sistema actual de gestión<br>• Cómo funcionan los seguimientos automatizados de leads<br>• Cómo se ven tu Dashboard e Informes con datos reales<br>• Qué tan fácil es cobrar pagos en línea<br>• Si la automatización de SMS/email te ahorra tiempo<br><br><em>Eres parte del Founders Club. Las escuelas early de GMBMA obtienen precios bloqueados de por vida. Tus 7 días cuentan para ese estatus.</em>'},
-{title:'Cómo registrarse para tu prueba', body:'Comenzar toma menos de 2 minutos. Aquí tienes el flujo completo de registro.<br><br><strong>Registro paso a paso</strong><br><span class="text-xs text-muted">~2 minutos</span><br><br><strong>1.</strong> Contáctanos en <strong>info@masterbaez.com</strong> para solicitar tu enlace de prueba<br>Te enviaremos un enlace directo en unas horas.<br><br><strong>2.</strong> Haz clic en tu enlace personalizado para abrir la página de registro<br><br><strong>3.</strong> Ingresa el nombre de tu escuela, tu nombre completo, email y teléfono<br><br><strong>4.</strong> Haz clic en "Iniciar mi prueba gratuita" — tu cuenta se crea al instante<br><br><strong>5.</strong> Serás redirigido al asistente de configuración automáticamente<br><br><strong>6.</strong> Tu reloj de 7 días comienza en el momento en que se crea tu cuenta<br><br><strong>Qué cubre el asistente de configuración</strong><br>• Elegir tu nivel de suscripción (vista previa sin cargo)<br>• Ingresar el nombre y contacto de tu escuela<br>• Subir tu logo<br>• Establecer tu dirección<br>• Revisar tus enlaces compartibles<br>• Completar la configuración y llegar a tu Dashboard'},
+{title:'Cómo registrarse para tu prueba', body:'Comenzar toma menos de 2 minutos. Aquí tienes el flujo completo de registro.<br><br><strong>Registro paso a paso</strong><br><span class="text-xs text-muted">~2 minutos</span><br><br><strong>1.</strong> Contáctanos en <strong>your@email.com</strong> para solicitar tu enlace de prueba<br>Te enviaremos un enlace directo en unas horas.<br><br><strong>2.</strong> Haz clic en tu enlace personalizado para abrir la página de registro<br><br><strong>3.</strong> Ingresa el nombre de tu escuela, tu nombre completo, email y teléfono<br><br><strong>4.</strong> Haz clic en "Iniciar mi prueba gratuita" — tu cuenta se crea al instante<br><br><strong>5.</strong> Serás redirigido al asistente de configuración automáticamente<br><br><strong>6.</strong> Tu reloj de 7 días comienza en el momento en que se crea tu cuenta<br><br><strong>Qué cubre el asistente de configuración</strong><br>• Elegir tu nivel de suscripción (vista previa sin cargo)<br>• Ingresar el nombre y contacto de tu escuela<br>• Subir tu logo<br>• Establecer tu dirección<br>• Revisar tus enlaces compartibles<br>• Completar la configuración y llegar a tu Dashboard'},
 {title:'Tus primeros 30 minutos (Día 1)', body:'<span class="badge badge-yellow">Día 1</span> Configura tu escuela y ve a GMBMA cobrar vida con datos reales.<br><br><strong>Lista de verificación del Día 1</strong><br><br><strong>☐ Completar el asistente de configuración</strong> <span class="text-xs text-muted">5 min</span><br><strong>☐ Llenar Configuración</strong> <span class="text-xs text-muted">5 min</span><br><strong>☐ Agregar 3–5 estudiantes reales</strong> <span class="text-xs text-muted">10 min</span><br><strong>☐ Registrar asistencia de un estudiante</strong> <span class="text-xs text-muted">2 min</span><br><strong>☐ Explorar tu Dashboard</strong> <span class="text-xs text-muted">5 min</span>'},
 {title:'Días 2–3: Explora las funciones principales', body:'<span class="badge badge-yellow">Días 2 y 3</span> Profundiza en los cuatro pilares de la gestión de estudiantes.<br><br><strong>Leads — Prueba el pipeline</strong><br>1. Ve a Leads → Add Lead con un nombre de prueba<br>2. Mira aparecer la tarjeta con su estado de seguimiento<br>3. Prueba el seguimiento automático por SMS/email<br>4. Convierte el lead a estudiante<br><br><strong>Calendario — Agenda una clase de prueba</strong><br>1. Ve a Calendar → haz clic en cualquier horario<br>2. Crea una cita de prueba vinculada a un lead<br>3. Ve la cita en la vista semanal<br><br><strong>Facturación — Registra un pago de prueba</strong><br>1. Ve a Billing → Record Payment → selecciona un estudiante<br>2. Ingresa un monto y tipo de pago<br>3. Guarda — el pago aparece en Reports<br><br><strong>Pro Shop — Agrega un producto y venta</strong><br>1. Ve a Pro Shop → Inventory → Add Product<br>2. Agrega un uniforme con precio y stock<br>3. Ve a Sales → Record Sale → vende el artículo'},
 {title:'Días 4–5: Marketing y Automatización', body:'<span class="badge badge-yellow">Días 4 y 5</span> Descubre las herramientas que hacen crecer tu escuela en piloto automático.<br><br><strong>Marketing Hub</strong><br>• <strong>Formulario de captura</strong> — Copia tu enlace de Settings y ábrelo en una pestaña nueva<br>• <strong>Campaña de email</strong> — Ve a Marketing → Email → Create Campaign<br>• <strong>Código QR</strong> — Crea un enlace de seguimiento para tu ventana<br>• <strong>Campaña SMS</strong> — Si tienes Twilio, redacta un SMS a tus estudiantes activos<br><br><strong>Redes Sociales — Generador AI</strong><br>1. Ve a Social Media → Create Post → elige un tipo<br>2. Haz clic en "Generate with AI" — GMBMA escribe un caption en segundos<br>3. Edita el caption y prográmalo en el calendario<br>4. Explora la biblioteca de contenido para ideas'},
 {title:'Días 6–7: Informes y decisión final', body:'<span class="badge badge-yellow">Días 6 y 7</span> Ve los datos de tu escuela completos. Toma tu decisión.<br><br><strong>Pestañas de Reports para explorar el Día 6</strong><br>• <strong>Members:</strong> Conteo de estudiantes por estado, programa y cinturón<br>• <strong>Attendance:</strong> Tendencias de asistencia en el tiempo<br>• <strong>Financials:</strong> Resumen de ingresos y desglose de pagos<br>• <strong>Leads:</strong> Cuántos leads se agregaron, convirtieron y perdieron<br>• <strong>Belt Testing:</strong> Elegibilidad para exámenes de cinturón<br><br><strong>Qué pasa cuando expira la prueba</strong><br>• <strong>Cuenta bloqueada:</strong> El día 8 verás pantalla de "Trial Expired"<br>• <strong>Datos preservados:</strong> Todo está seguro esperándote<br>• <strong>Desbloqueo instantáneo:</strong> Al suscribirte, tu cuenta se desbloquea al instante<br>• <strong>Sin pérdida:</strong> Ningún registro se elimina durante o después de la prueba'},
 {title:'Qué pasa después de la prueba', body:'Si decides que GMBMA es lo correcto — y creemos que lo será — suscribirte toma unos 2 minutos. Todos tus datos de prueba se transfieren al instante.<br><br><strong>Los 3 niveles de suscripción GMBMA</strong><br><br><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:12px 0"><div class="stat-card" style="text-align:center"><div style="font-size:28px">🐾</div><strong>GMBMA Cub</strong><br><span class="text-xs text-muted">Contacto para precios</span><br><span class="text-xs">Perfecto para escuelas pequeñas</span></div><div class="stat-card" style="text-align:center"><div style="font-size:28px">🐆</div><strong>GMBMA Prowler</strong><br><span class="text-xs text-muted">Contacto para precios</span><br><span class="text-xs">Para escuelas en crecimiento</span></div><div class="stat-card" style="text-align:center"><div style="font-size:28px">🦁</div><strong>GMBMA Apex</strong><br><span class="text-xs text-muted">Contacto para precios</span><br><span class="text-xs">Para escuelas establecidas o multi-sede</span></div></div>'},
-{title:'¿Preguntas? Estamos aquí para ayudarte', body:'¿Tienes una pregunta durante tu prueba? ¿No estás seguro de qué plan es el adecuado? ¿Listo para suscribirte? Contáctanos directamente. Respondemos personalmente, generalmente en unas horas.<br><br><div style="text-align:center;padding:20px;background:#ede9fe;border-radius:8px;margin:12px 0;border:1px solid #c4b5fd"><strong style="font-size:18px;color:#4c1d95">Grandmaster Daniel Baez</strong><br><span class="text-sm" style="color:#5b21b6">info@masterbaez.com</span><br><span class="text-sm" style="color:#5b21b6">954-380-1340</span><br><span class="text-xs text-muted" style="color:#7c3aed">Respuesta típica: en unas horas</span></div>'},
+{title:'¿Preguntas? Estamos aquí para ayudarte', body:'¿Tienes una pregunta durante tu prueba? ¿No estás seguro de qué plan es el adecuado? ¿Listo para suscribirte? Contáctanos directamente. Respondemos personalmente, generalmente en unas horas.<br><br><div style="text-align:center;padding:20px;background:#ede9fe;border-radius:8px;margin:12px 0;border:1px solid #c4b5fd"><strong style="font-size:18px;color:#4c1d95">Your School</strong><br><span class="text-sm" style="color:#5b21b6">your@email.com</span><br><span class="text-sm" style="color:#5b21b6"></span><br><span class="text-xs text-muted" style="color:#7c3aed">Respuesta típica: en unas horas</span></div>'},
 {title:'Consejos profesionales para tu prueba', body:'<strong>1.</strong> Agrega tus estudiantes reales durante la prueba — no nombres falsos. Como el 100% de tus datos se transfieren al suscribirte, no pierdes tiempo.<br><br><strong>2.</strong> Configura tu API key de Brevo el día 1 (brevo.com — gratis hasta 300 emails/día).<br><br><strong>3.</strong> Comparte tu enlace de formulario de captura con un amigo de confianza y haz que envíen una consulta falsa — mira el pipeline completo.<br><br><strong>4.</strong> El día 5, prueba la página de pago con la tarjeta de prueba de Stripe: 4242 4242 4242 4242.<br><br><strong>5.</strong> Bloquea 15 minutos el día 7 para abrir Reports y revisar cada pestaña.'},
-{title:'Referencia rápida: Guía de prueba', body:'<div style="overflow-x:auto"><table class="mini-table"><tr><th>Día</th><th>Enfoque</th></tr><tr><td>Día 1</td><td>Asistente → Configuración → Agregar estudiantes → Primera asistencia</td></tr><tr><td>Día 2</td><td>Agregar leads → Crear citas → Registrar primer pago</td></tr><tr><td>Día 3</td><td>Pro Shop → Agregar productos → Registrar venta</td></tr><tr><td>Día 4</td><td>Marketing Hub → Campaña email → Formulario leads → QR</td></tr><tr><td>Día 5</td><td>Redes Sociales → Generador AI → Programar posts → Probar checkout</td></tr><tr><td>Día 6</td><td>Reports → Todas las pestañas → Tendencias → Resumen financiero</td></tr><tr><td>Día 7</td><td>15 min Reports → Tomar decisión → Email para suscribirse</td></tr></table></div><br><div style="text-align:center;padding:16px;margin-top:12px;border-top:1px solid #e5e7eb"><strong>Grandmaster Daniel Baez</strong><br><span class="text-sm">info@masterbaez.com</span><br><span class="text-sm">954-380-1340</span></div>'}
+{title:'Referencia rápida: Guía de prueba', body:'<div style="overflow-x:auto"><table class="mini-table"><tr><th>Día</th><th>Enfoque</th></tr><tr><td>Día 1</td><td>Asistente → Configuración → Agregar estudiantes → Primera asistencia</td></tr><tr><td>Día 2</td><td>Agregar leads → Crear citas → Registrar primer pago</td></tr><tr><td>Día 3</td><td>Pro Shop → Agregar productos → Registrar venta</td></tr><tr><td>Día 4</td><td>Marketing Hub → Campaña email → Formulario leads → QR</td></tr><tr><td>Día 5</td><td>Redes Sociales → Generador AI → Programar posts → Probar checkout</td></tr><tr><td>Día 6</td><td>Reports → Todas las pestañas → Tendencias → Resumen financiero</td></tr><tr><td>Día 7</td><td>15 min Reports → Tomar decisión → Email para suscribirse</td></tr></table></div><br><div style="text-align:center;padding:16px;margin-top:12px;border-top:1px solid #e5e7eb"><strong>Your School</strong><br><span class="text-sm">your@email.com</span><br><span class="text-sm"></span></div>'}
 ])},
     {icon:'&#x1F4CA;', title:'How to Read & Use Your Dashboard', desc:'Learn what every stat, alert, and section on your Dashboard means — and how to act on them.', cat:'Getting Started', time:'5 min read', titleEs:'Cómo Leer y Usar tu Dashboard', descEs:'Aprende qué significa cada estadística, alerta y sección de tu Dashboard, y cómo actuar según ellas.', catEs:'Primeros Pasos', timeEs:'5 min de lectura', content:CONTENT_EN_ES([
 {title:'Overview', body:'Your Dashboard is the command center of your martial arts school. Every time you or your staff open GMBMA, the Dashboard loads first and gives you a real-time snapshot of everything happening in your school — from membership numbers to revenue, alerts to daily stats.<br><br>The Dashboard also runs important automations in the background the moment it loads: lead follow-up texts, Google review requests, and Student of the Month processing. Opening your Dashboard daily is one of the most important habits you can build as a school owner.'},
@@ -10090,7 +10090,7 @@ function printConductCertificate(memberName, idx) {
   var title = titles[rec.rating] || (isEs ? 'Certificado de Conducta' : 'Certificate of Conduct');
   var sub = (isEs ? 'Student Creed — Evaluación del ' : 'Student Creed — Evaluation of ') + rec.date;
   var lines = (isEs ? 'Calificación: ' : 'Rating: ') + '<strong>' + escHtml(rec.rating) + '</strong> &mdash; ' + '\u2B50'.repeat(rec.stars||0) + (rec.notes ? '<br><br>' + escHtml(rec.notes) : '');
-  openCertificate(title, sub, memberName, lines, 'Grandmaster Daniel Baez');
+  openCertificate(title, sub, memberName, lines, 'Your School');
 }
 
 // ---- Certificates & Winners History ----
@@ -10157,7 +10157,7 @@ function printWinnerCertificate(month, name, rankIdx, points) {
   var title = isEs ? 'Certificado de Reconocimiento' : 'Certificate of Achievement';
   var sub = (isEs ? 'Tabla de Líderes Mensual — ' : 'Monthly Leaderboard — ') + month + ' — ' + ranks[rankIdx];
   var lines = (isEs ? 'Por su dedicación, asistencia y excelente desempeño, obteniendo ' : 'For dedication, attendance, and excellent performance, earning ') + '<strong>' + points + ' pts</strong> ' + (isEs ? 'este mes.' : 'this month.');
-  openCertificate(title, sub, name, lines, 'Grandmaster Daniel Baez');
+  openCertificate(title, sub, name, lines, 'Your School');
 }
 
 function toEmbedUrl(url) {
@@ -10303,7 +10303,7 @@ function openGuide(idx) {
     html += '</div>';
   });
 
-  html += '<div style="margin-top:28px;padding:12px 16px;background:#faf5ff;border:1px solid #ddd6fe;border-radius:8px;font-size:12px;color:#7c3aed;text-align:center;font-family:system-ui,sans-serif">GMBMA Learning Center &mdash; Grand Master Baez Martial Arts</div>';
+  html += '<div style="margin-top:28px;padding:12px 16px;background:#faf5ff;border:1px solid #ddd6fe;border-radius:8px;font-size:12px;color:#7c3aed;text-align:center;font-family:system-ui,sans-serif">GMBMA Learning Center &mdash; Your School Name</div>';
   html += '</div>';
 
   const existingBody = document.querySelector('#guide-modal-body');
@@ -10947,7 +10947,7 @@ function processAutomations() {
 }
 
 function saveSettings() {
-  const schoolName = $('settings-school-name').value.trim() || 'Grand Master Baez Martial Arts';
+  const schoolName = $('settings-school-name').value.trim() || 'Your School Name';
   const settings = {
     school: {name: schoolName, email: $('settings-email').value, phone: $('settings-phone').value, website: $('settings-website').value, social: $('settings-social').value, logo: state.schoolLogo || ''},
     owner: {name: $('settings-owner-name').value, cell: $('settings-owner-cell').value},
@@ -10984,12 +10984,34 @@ function saveSettings() {
   if (typeof fbSaveAll === 'function') fbSaveAll();
   if (typeof fbSaveSettings === 'function') fbSaveSettings(settings);
   if (state.schoolLogo) {
-    document.querySelector('#sidebar .logo').innerHTML = '<img src="' + state.schoolLogo + '" style="height:32px;border-radius:4px"><span>GMBMA</span>';
+    document.querySelector('#sidebar .logo').innerHTML = '<img src="' + state.schoolLogo + '" style="height:32px;border-radius:4px"><span>' + (schoolName || 'My School') + '</span>';
   }
+  updateBrandName();
   showToast('All settings for "' + schoolName + '" saved successfully!', 'success');
 }
 
 // Load settings from localStorage on page load
+// Updates all visible brand name spots with the school's configured name.
+// Called after settings load so every account sees their own name, not "GMBMA".
+function updateBrandName() {
+  try {
+    var s = JSON.parse(localStorage.getItem('gmbmaSettings') || '{}');
+    var name = (s.school && s.school.name) ? s.school.name : '';
+    if (!name) return;
+    // Sidebar logo text
+    var brandName = document.getElementById('brand-name');
+    if (brandName) brandName.textContent = name;
+    // Login screen title
+    var loginBrand = document.getElementById('login-brand-name');
+    if (loginBrand) loginBrand.textContent = name;
+    // Footer
+    var footer = document.querySelector('.footer span');
+    if (footer) footer.textContent = name + ' \u00a9 ' + new Date().getFullYear();
+    // Browser tab title
+    document.title = name + ' - School Management';
+  } catch(e) {}
+}
+
 function loadSavedSettings() {
   try {
     const saved = localStorage.getItem('gmbmaSettings');
@@ -11005,7 +11027,7 @@ function loadSavedSettings() {
           state.schoolLogo = s.school.logo;
           const preview = $('settings-logo-preview');
           if (preview) { preview.style.backgroundImage = 'url(' + s.school.logo + ')'; preview.textContent = ''; }
-          document.querySelector('#sidebar .logo').innerHTML = '<img src="' + s.school.logo + '" style="height:32px;border-radius:4px"><span>GMBMA</span>';
+          document.querySelector('#sidebar .logo').innerHTML = '<img src="' + s.school.logo + '" style="height:32px;border-radius:4px"><span>' + (s.school.name || 'My School') + '</span>';
         }
       }
       if (s.owner) {
@@ -11059,6 +11081,8 @@ function loadSavedSettings() {
       }
     }
   } catch(e) { /* ignore parse errors */ }
+  // Update all brand name spots with the school's configured name
+  updateBrandName();
 }
 
 function applyLeadFieldVisibility(lf) {
@@ -11165,9 +11189,9 @@ function clearSignature() {
 
 var WAIVER_TEMPLATES = {
   default: {
-    name: 'Grand Master Baez Martial Arts',
+    name: 'Your School Name',
     getHTML: function() {
-      var name = 'Grand Master Baez Martial Arts';
+      var name = 'Your School Name';
       var info = '123 Main Street, Springfield, IL 62701 &bull; (555) 123-4567 &bull; info@gmbma.com';
       try {
         var s = JSON.parse(localStorage.getItem('gmbmaSettings'));
@@ -11184,11 +11208,11 @@ var WAIVER_TEMPLATES = {
         + '<h5>1. Assumption of Risk</h5>'
         + '<p>I acknowledge that participation in martial arts training involves inherent risks, including but not limited to physical injury, property damage, or death. I voluntarily assume all such risks.</p>'
         + '<h5>2. Release of Liability</h5>'
-        + '<p>I hereby release and discharge Grand Master Baez Martial Arts, its owners, employees, and instructors from any and all claims, demands, or causes of action arising from my participation in activities.</p>'
+        + '<p>I hereby release and discharge Your School Name, its owners, employees, and instructors from any and all claims, demands, or causes of action arising from my participation in activities.</p>'
         + '<h5>3. Medical Treatment</h5>'
         + '<p>I consent to receive medical treatment deemed necessary in case of injury. I understand that I am responsible for all medical costs incurred.</p>'
         + '<h5>4. Photo Release</h5>'
-        + '<p>I grant Grand Master Baez Martial Arts permission to use photographs and videos of me for promotional purposes without compensation.</p>'
+        + '<p>I grant Your School Name permission to use photographs and videos of me for promotional purposes without compensation.</p>'
         + '<h5>5. Rules &amp; Regulations</h5>'
         + '<p>I agree to follow all school rules and policies. I understand that failure to comply may result in dismissal without refund.</p>';
     }
@@ -11320,7 +11344,7 @@ function buildWaiverDocHtml(student, parent, email, phone) {
   if (signatureData) {
     sigImg = '<div class="signature-area"><strong>Signature / Firma:</strong><br><img src="'+signatureData+'" style="max-width:320px;max-height:80px;border:1px solid #ccc;margin-top:6px;background:#fff"></div>';
   }
-  var schoolName = 'Grand Master Baez Martial Arts';
+  var schoolName = 'Your School Name';
   var schoolInfo = '';
   try {
     var s = JSON.parse(localStorage.getItem('gmbmaSettings'));
@@ -11375,7 +11399,7 @@ function buildWaiverDocHtml(student, parent, email, phone) {
     + '<button onclick="window.print()">&#x1F5A8; Print / Imprimir</button>'
     + '<button class="print-btn" onclick="window.close()">&#x2715; Close</button>'
     + '</div>'
-    + '<div class="footer">Document generated by Grand Master Baez Martial Arts &mdash; ' + new Date().toLocaleString() + '</div>'
+    + '<div class="footer">Document generated by Your School Name &mdash; ' + new Date().toLocaleString() + '</div>'
     + '</body></html>';
 }
 
@@ -11406,7 +11430,7 @@ function shareWaiver(channel) {
   const waiverText = waiverHTML.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&bull;/g, '-').replace(/&[a-z]+;/g, ' ').trim();
   const date = new Date().toLocaleDateString();
   var tid = getCurrentTemplateId();
-  var schoolName = tid === 'united' ? 'United Martial Arts LLC' : 'Grand Master Baez Martial Arts';
+  var schoolName = tid === 'united' ? 'United Martial Arts LLC' : 'Your School Name';
   try {
     var s = JSON.parse(localStorage.getItem('gmbmaSettings'));
     if (s && s.school && s.school.name) schoolName = s.school.name;
@@ -11596,8 +11620,8 @@ const I18N = {
     lead_kpi_instant: 'Instant Touch', lead_kpi_instant_sub: 'Leads contacted within 5 min',
     lead_kpi_nudges: '24h Nudges', lead_kpi_nudges_sub: 'Follow-ups sent today',
     lead_kpi_conversion: 'Nudge \u2192 Trial', lead_kpi_conversion_sub: 'Conversion rate',
-    lead_outreach_msg: 'Hi {name}, I\u2019m following up from Grand Master Baez Martial Arts.',
-    lead_outreach_subj: 'Follow-up from Grand Master Baez Martial Arts',
+    lead_outreach_msg: 'Hi {name}, I\u2019m following up from Your School Name.',
+    lead_outreach_subj: 'Follow-up from Your School Name',
     lead_preferred_date: 'Preferred Date', lead_preferred_time: 'Preferred Time', lead_sms_consent: 'I agree to receive SMS', lead_sms_consent_short: 'SMS OK',
     // Attendance page
     day_mon: 'Mon', day_tue: 'Tue', day_wed: 'Wed', day_thu: 'Thu', day_fri: 'Fri', day_sat: 'Sat', day_sun: 'Sun',
@@ -12217,8 +12241,8 @@ const I18N = {
     lead_kpi_instant: 'Toque Instantáneo', lead_kpi_instant_sub: 'Prospectos contactados en 5 min',
     lead_kpi_nudges: 'Recordatorios 24h', lead_kpi_nudges_sub: 'Seguimientos enviados hoy',
     lead_kpi_conversion: 'Empujón → Prueba', lead_kpi_conversion_sub: 'Tasa de conversión',
-    lead_outreach_msg: 'Hola {name}, te escribo de Grand Master Baez Martial Arts.',
-    lead_outreach_subj: 'Seguimiento de Grand Master Baez Martial Arts',
+    lead_outreach_msg: 'Hola {name}, te escribo de Your School Name.',
+    lead_outreach_subj: 'Seguimiento de Your School Name',
     lead_preferred_date: 'Fecha Preferida', lead_preferred_time: 'Hora Preferida', lead_sms_consent: 'Acepto recibir SMS', lead_sms_consent_short: 'SMS OK',
     // Attendance page
     day_mon: 'Lun', day_tue: 'Mar', day_wed: 'Mié', day_thu: 'Jue', day_fri: 'Vie', day_sat: 'Sáb', day_sun: 'Dom',
