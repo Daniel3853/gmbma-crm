@@ -1780,7 +1780,13 @@ tr:hover .row-action{opacity:1}
             <div class="form-section">
               <label data-i18n="settings_school_logo">School Logo</label>
               <input type="file" id="settings-logo-input" accept="image/*" style="display:none" onchange="handleLogoUpload(this)">
-              <div id="settings-logo-preview" style="width:80px;height:80px;border:2px dashed var(--border);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:28px;cursor:pointer;overflow:hidden;background-size:cover;background-position:center" onclick="$('settings-logo-input').click()">+</div>
+              <div style="display:flex;align-items:center;gap:10px">
+                <div id="settings-logo-preview" style="width:80px;height:80px;border:2px dashed var(--border);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:28px;cursor:pointer;overflow:hidden;background-size:cover;background-position:center" onclick="$('settings-logo-input').click()">+</div>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <button class="btn btn-sm" onclick="$('settings-logo-input').click()" style="font-size:12px">📁 Change Logo</button>
+                  <button class="btn btn-sm" onclick="removeLogo()" style="font-size:12px;color:var(--danger);border-color:var(--danger)">🗑️ Remove Logo</button>
+                </div>
+              </div>
             </div>
             <div class="form-row">
               <div class="form-section">
@@ -10802,10 +10808,41 @@ function handleLogoUpload(input) {
     preview.style.backgroundImage = 'url(' + dataUrl + ')';
     preview.textContent = '';
     state.schoolLogo = dataUrl;
-    document.querySelector('#sidebar .logo').innerHTML = '<img src="' + dataUrl + '" style="height:32px;border-radius:4px"><span>GMBMA</span>';
+    var brandEl = document.getElementById('brand-name');
+    var brandName = brandEl ? brandEl.textContent : 'My School';
+    document.querySelector('#sidebar .logo').innerHTML = '<img src="' + dataUrl + '" style="height:32px;border-radius:4px"><span>' + brandName + '</span>';
     showToast('Logo uploaded. Save settings to keep it.', 'info');
   };
   reader.readAsDataURL(file);
+}
+
+function removeLogo() {
+  // Clear logo from state
+  state.schoolLogo = null;
+  // Clear preview
+  var preview = $('settings-logo-preview');
+  if (preview) { preview.style.backgroundImage = ''; preview.textContent = '+'; }
+  // Reset sidebar to text only
+  var brandEl = document.getElementById('brand-name');
+  var brandName = brandEl ? brandEl.textContent : 'My School';
+  var logoEl = document.querySelector('#sidebar .logo');
+  if (logoEl) logoEl.innerHTML = '<span id="brand-name">' + brandName + '</span>';
+  // Clear from localStorage
+  try { localStorage.removeItem('gmbmaSchoolLogo'); } catch(e) {}
+  // Clear from Settings saved data
+  try {
+    var s = JSON.parse(localStorage.getItem('gmbmaSettings') || '{}');
+    if (s.school) { delete s.school.logo; localStorage.setItem('gmbmaSettings', JSON.stringify(s)); }
+  } catch(e) {}
+  // Save to Supabase
+  if (typeof fbSaveAll === 'function') fbSaveAll();
+  if (typeof fbSaveSettings === 'function') {
+    try {
+      var settings = JSON.parse(localStorage.getItem('gmbmaSettings') || '{}');
+      fbSaveSettings(settings);
+    } catch(e) {}
+  }
+  showToast('Logo removed.', 'success');
 }
 
 function toggleAutomation(key) {
