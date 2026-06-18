@@ -521,27 +521,23 @@ tr:hover .row-action{opacity:1}
 
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Unique, permanent key identifying this school's data in Supabase.
-    // IMPORTANT: once created, this key must NEVER change — not even if the
-    // owner's email changes later. Changing it would orphan all existing
-    // data (leads, members, billing, etc.) because everything is stored
-    // keyed off of it. It is generated once (random + timestamp) the first
-    // time this browser is used and then persisted forever in localStorage.
+    // Unique key identifying THIS LOGGED-IN BUSINESS's data in Supabase.
+    // It is the Supabase Auth user id (a UUID) of whoever is currently
+    // signed in — NOT a value baked into the code, and NOT something
+    // stored in localStorage. This is what makes the system multi-tenant:
+    // every business that signs up gets its own auth user id, and RLS
+    // policies in Supabase ensure each account can only read/write the
+    // row matching its own id. Returns null if nobody is logged in yet.
+    var _currentAuthUserId = null;
     function getSchoolKey() {
-      var key = localStorage.getItem('gmbmaSchoolKey');
-      if (key) return key;
-      // No key yet on this browser: create a brand-new random one.
-      // (We intentionally do NOT derive this from the owner's email anymore,
-      // since emails can change and the key must stay stable.)
-      key = 'school_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
-      localStorage.setItem('gmbmaSchoolKey', key);
-      return key;
+      return _currentAuthUserId;
     }
 
     // Save a single lead to Supabase
     async function fbSaveLead(lead) {
       try {
         var sk = getSchoolKey();
+        if (!sk) return;
         await _supabase.from('leads').upsert({ id: String(lead.id), school_key: sk, data: lead }, { onConflict: 'id,school_key' });
       } catch(e) { console.warn('Supabase save lead error:', e); }
     }
@@ -550,6 +546,7 @@ tr:hover .row-action{opacity:1}
     async function fbDeleteLead(id) {
       try {
         var sk = getSchoolKey();
+        if (!sk) return;
         await _supabase.from('leads').delete().eq('id', String(id)).eq('school_key', sk);
       } catch(e) { console.warn('Supabase delete lead error:', e); }
     }
@@ -558,6 +555,7 @@ tr:hover .row-action{opacity:1}
     async function fbUpdateLead(id, data) {
       try {
         var sk = getSchoolKey();
+        if (!sk) return;
         var { data: existing } = await _supabase.from('leads').select('data').eq('id', String(id)).eq('school_key', sk).single();
         var merged = Object.assign({}, existing ? existing.data : {}, data);
         await _supabase.from('leads').upsert({ id: String(id), school_key: sk, data: merged }, { onConflict: 'id,school_key' });
@@ -565,9 +563,17 @@ tr:hover .row-action{opacity:1}
     }
 
     // Listen for real-time lead changes
+    var _leadsChannel = null;
     function fbListenLeads() {
       var sk = getSchoolKey();
-      _supabase.channel('leads-changes')
+      if (!sk) return;
+      // Remove any existing channel before creating a new one (prevents the
+      // "cannot add postgres_changes after subscribe()" error on re-login)
+      if (_leadsChannel) {
+        try { _supabase.removeChannel(_leadsChannel); } catch(e) {}
+        _leadsChannel = null;
+      }
+      _leadsChannel = _supabase.channel('leads-changes-' + sk)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'leads', filter: 'school_key=eq.' + sk }, function() {
           _supabase.from('leads').select('data').eq('school_key', sk).then(function(res) {
             if (res.data && typeof state !== 'undefined') {
@@ -585,6 +591,7 @@ tr:hover .row-action{opacity:1}
     async function fbSaveAll() {
       try {
         var sk = getSchoolKey();
+        if (!sk) return;
         var data = {
           programs: state.programs || [],
           staff: state.staff || [],
@@ -627,6 +634,7 @@ tr:hover .row-action{opacity:1}
     async function fbSaveSettings(settings) {
       try {
         var sk = getSchoolKey();
+        if (!sk) return;
         var { error: settErr } = await _supabase.from('school_settings').upsert({ school_key: sk, data: settings }, { onConflict: 'school_key' });
         if (settErr) console.warn('Supabase settings upsert error:', settErr);
       } catch(e) { console.warn('Supabase fbSaveSettings error:', e); }
@@ -635,6 +643,7 @@ tr:hover .row-action{opacity:1}
     // Load ALL state data from Supabase on startup
     function fbLoadAll(callback) {
       var sk = getSchoolKey();
+      if (!sk) { if (typeof callback === 'function') callback(); return; }
       _supabase.from('school_data').select('data').eq('school_key', sk).limit(1).then(function(res) {
         var val = (res.data && res.data.length > 0) ? res.data[0].data : null;
         if (val && typeof state !== 'undefined') {
@@ -664,6 +673,7 @@ tr:hover .row-action{opacity:1}
     // Load settings from Supabase
     function fbLoadSettings(callback) {
       var sk = getSchoolKey();
+      if (!sk) { if (typeof callback === 'function') callback(null); return; }
       _supabase.from('school_settings').select('data').eq('school_key', sk).limit(1).then(function(res) {
         var val = (res.data && res.data.length > 0) ? res.data[0].data : null;
         if (val) {
@@ -1501,7 +1511,7 @@ tr:hover .row-action{opacity:1}
             <div class="card-body">
               <div class="form-section">
                 <label>Destination URL</label>
-                <input id="qr-url" placeholder="https://yourschool.com/register" value="https://daniel3853.github.io/gmbma-crm/?leadform=1">
+                <input id="qr-url" placeholder="https://yourschool.com/register">
               </div>
               <div class="form-row">
                 <div class="form-section">
@@ -2075,17 +2085,20 @@ tr:hover .row-action{opacity:1}
     <div id="login-form">
       <div class="form-section">
         <label style="font-size:13px;font-weight:500;margin-bottom:6px;display:block">Email</label>
-        <input id="login-email" type="email" placeholder="your@email.com" style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.08);padding:12px 14px;border-radius:10px;transition:border-color var(--transition), box-shadow var(--transition)">
+        <input id="login-email" type="email" placeholder="your@email.com" onkeydown="if(event.key==='Enter')$('login-password').focus()" style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.08);padding:12px 14px;border-radius:10px;transition:border-color var(--transition), box-shadow var(--transition)">
+      </div>
+      <div class="form-section" style="margin-top:12px">
+        <label style="font-size:13px;font-weight:500;margin-bottom:6px;display:block">Password</label>
+        <input id="login-password" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.08);padding:12px 14px;border-radius:10px;transition:border-color var(--transition), box-shadow var(--transition)">
       </div>
       <button class="btn btn-primary" onclick="doLogin()" style="width:100%;margin-top:12px;padding:12px;font-size:14px;font-weight:600;border-radius:10px;letter-spacing:0.3px">Sign In</button>
       <p id="login-error" class="text-sm" style="color:var(--danger);margin-top:8px;display:none"></p>
-      <details id="demo-accounts" style="margin-top:16px;font-size:12px;text-align:left;color:#8B8593;background:rgba(0,0,0,0.15);border-radius:8px;padding:8px 12px;border:1px solid rgba(255,255,255,0.05)">
-        <summary style="cursor:pointer;font-size:12px;font-weight:500;padding:2px 0">&#x1F512; Staff accounts</summary>
-        <div id="demo-list" style="margin-top:8px;display:grid;gap:4px;grid-template-columns:1fr auto;font-size:12px"></div>
-      </details>
+      <p class="text-sm" style="margin-top:14px;text-align:center;color:var(--muted)">
+        New business? <a href="#" onclick="showSetupForm();return false;" style="color:var(--primary);text-decoration:none;font-weight:500">Create an account</a>
+      </p>
     </div>
     <div id="setup-form" style="display:none">
-      <p class="text-sm text-muted mb-2">No staff accounts yet. Create the Owner account:</p>
+      <p class="text-sm text-muted mb-2">Create your business owner account:</p>
       <div class="form-section">
         <label style="font-size:13px;font-weight:500;margin-bottom:6px;display:block">Your Name</label>
         <input id="setup-name" placeholder="Full name" style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.08);padding:12px 14px;border-radius:10px">
@@ -2094,7 +2107,14 @@ tr:hover .row-action{opacity:1}
         <label style="font-size:13px;font-weight:500;margin-bottom:6px;display:block">Email</label>
         <input id="setup-email" type="email" placeholder="owner@email.com" style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.08);padding:12px 14px;border-radius:10px">
       </div>
+      <div class="form-section" style="margin-top:12px">
+        <label style="font-size:13px;font-weight:500;margin-bottom:6px;display:block">Password</label>
+        <input id="setup-password" type="password" placeholder="At least 6 characters" onkeydown="if(event.key==='Enter')doSetup()" style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.08);padding:12px 14px;border-radius:10px">
+      </div>
       <button class="btn btn-primary" onclick="doSetup()" style="width:100%;margin-top:12px;padding:12px;font-size:14px;font-weight:600;border-radius:10px;letter-spacing:0.3px">Create Owner Account</button>
+      <p class="text-sm" style="margin-top:14px;text-align:center;color:var(--muted)">
+        Already have an account? <a href="#" onclick="showLoginForm();return false;" style="color:var(--primary);text-decoration:none;font-weight:500">Sign in</a>
+      </p>
     </div>
   </div>
 </div>
@@ -3171,8 +3191,109 @@ const state = {
 };
 
 // ============================================================
-// NAVIGATION
+// MULTI-TENANT HELPERS
 // ============================================================
+
+// Clears all business data to a clean blank slate (no demo members/leads/etc).
+// Used when a brand-new business signs up, so they don't see Master Baez's
+// (or anyone else's) demo content.
+function resetStateForNewBusiness() {
+  state.members = [];
+  state.leads = [];
+  state.billing = [];
+  state.events = [];
+  state.appointments = [];
+  state.attendance = [];
+  state.examNoShows = [];
+  state.competitions = [];
+  state.staffTasks = [];
+  state.programs = [];
+  state.staff = [];
+  state.leaderboard = [];
+  state.bonusPoints = {};
+  state.customCategories = [];
+  state.pointsConfig = { checkin: 10, aftercare: 5, event: 25, exam: 50, birthday: 15 };
+  state.dailyStats = {revenue:0, proShop:0, pastDue:0, events:0, exams:0, birthdayParty:0, upgrades:0, renewals:0, enrollment:0, monthly:0, privateLesson:0, downPayment:0, leadsSource:0, trialLesson:0};
+  state.proShopProducts = [];
+  state.proShopSales = [];
+  state.waiverSubmitted = false;
+  state.schoolLogo = null;
+  state.templates = [];
+  state.trash = [];
+  state.gateways = {};
+  state.automations = {leadNurture:true, googleReview:true, studentMonth:true, birthday:true, beltTest:true, retention:true};
+  state.automationLog = [];
+  state.smsCampaigns = [];
+  state.emailCampaigns = [];
+  state.qrCodes = [];
+  state.socialPosts = [];
+  state.contentLibrary = [];
+  state.credentials = [];
+  state.shareLinks = {};
+  state.conduct = [];
+  state.marketingSpend = 0;
+}
+
+// Called once Supabase Auth confirms who the person is. Loads (or restores)
+// their staff profile, pulls their business data, and shows the app.
+async function onAuthenticated(user) {
+  // Helper: wraps a callback-based fb* function as a Promise with a
+  // 6-second timeout so the app never hangs if Supabase is slow/unreachable.
+  function withTimeout(fn, ms) {
+    return new Promise(function(resolve) {
+      var done = false;
+      var timer = setTimeout(function() {
+        if (!done) { done = true; resolve(); }
+      }, ms || 6000);
+      fn(function() {
+        if (!done) { done = true; clearTimeout(timer); resolve(); }
+      });
+    });
+  }
+
+  // Load main data and settings in parallel (faster than sequential awaits).
+  // Each call times out after 6 s so a slow/offline Supabase never freezes the UI.
+  await Promise.all([
+    withTimeout(function(cb) {
+      fbLoadAll(function() {
+        if (typeof window.loadLocalData === 'function') window.loadLocalData();
+        cb();
+      });
+    }),
+    withTimeout(function(cb) {
+      fbLoadSettings(function(settings) {
+        if (settings) {
+          try { localStorage.setItem('gmbmaSettings', JSON.stringify(settings)); } catch(e) {}
+        }
+        cb();
+      });
+    })
+  ]);
+  // Find this user's own staff profile by email (case-insensitive).
+  var email = (user.email || '').toLowerCase();
+  var staff = state.staff.find(function(s) { return s.email && s.email.toLowerCase() === email; });
+  if (!staff) {
+    // First login after signup, or staff list didn't carry over for some
+    // reason — create a default Owner profile so they're never locked out.
+    staff = { id: Date.now(), name: user.email, email: email, role: 'Owner' };
+    state.staff.push(staff);
+  }
+  state.currentUser = staff;
+  localStorage.setItem('gmbmaUser', JSON.stringify(staff));
+  if (typeof fbSaveAll === 'function') fbSaveAll();
+  renderPrograms();
+  renderStaff();
+  if (typeof initShareLinks === 'function') initShareLinks();
+  if (typeof fbListenLeads === 'function') fbListenLeads();
+  loadSavedSettings();
+  if (typeof loadAutomations === 'function') loadAutomations();
+  if (typeof loadGateways === 'function') loadGateways();
+  applyAuth();
+  applyLang();
+}
+
+
+
 const pageTitles = {
   dashboard:{title:'Owner Dashboard',sub:'Real-time insights for your martial arts school'},
   members:{title:'Members',sub:'Manage your student roster'},
@@ -3216,48 +3337,98 @@ function isAdmin() {
   return role && PERMISSION[role] && PERMISSION[role].admin;
 }
 
-function doLogin() {
+async function doLogin() {
   const email = $('login-email').value.trim().toLowerCase();
+  const password = $('login-password').value;
   const err = $('login-error');
-  if (!email) { err.textContent = 'Please enter your email.'; err.style.display = 'block'; return; }
-  const staff = state.staff.find(s => s.email.toLowerCase() === email);
-  if (!staff) { err.textContent = 'No account found with that email.'; err.style.display = 'block'; return; }
+  if (!email || !password) { err.textContent = 'Please enter your email and password.'; err.style.display = 'block'; return; }
   err.style.display = 'none';
-  state.currentUser = staff;
-  localStorage.setItem('gmbmaUser', JSON.stringify(staff));
-  // NOTE: school key is intentionally NOT recalculated here. It is set once
-  // (on setup / first run) and must stay fixed even if the owner's email
-  // changes later — otherwise existing data becomes unreachable.
-  applyAuth();
+
+  // Show loading state on button
+  const btn = document.querySelector('#login-form .btn-primary');
+  const originalText = btn ? btn.textContent : '';
+  if (btn) { btn.textContent = 'Signing in…'; btn.disabled = true; }
+
+  const { data, error } = await _supabase.auth.signInWithPassword({ email: email, password: password });
+
+  if (error) {
+    if (btn) { btn.textContent = originalText; btn.disabled = false; }
+    err.textContent = error.message || 'Invalid email or password.';
+    err.style.display = 'block';
+    return;
+  }
+
+  // Small delay to let Supabase Auth session propagate before RLS-protected queries run
+  await new Promise(function(r) { setTimeout(r, 300); });
+
+  _currentAuthUserId = data.user.id;
+  await onAuthenticated(data.user);
+  if (btn) { btn.textContent = originalText; btn.disabled = false; }
 }
 
-function doSetup() {
+async function doSetup() {
   const name = $('setup-name').value.trim();
   const email = $('setup-email').value.trim().toLowerCase();
+  const password = $('setup-password').value;
   const err = $('login-error');
-  if (!name || !email) { err.textContent = 'Please fill in all fields.'; err.style.display = 'block'; return; }
+  if (!name || !email || !password) { err.textContent = 'Please fill in all fields.'; err.style.display = 'block'; return; }
+  if (password.length < 6) { err.textContent = 'Password must be at least 6 characters.'; err.style.display = 'block'; return; }
   err.style.display = 'none';
-  const staff = { id: Date.now(), name, email, role: 'Owner' };
-  state.staff.push(staff);
+  const { data, error } = await _supabase.auth.signUp({ email: email, password: password });
+  if (error) {
+    err.textContent = error.message || 'Could not create account.';
+    err.style.display = 'block';
+    return;
+  }
+  if (!data.session || !data.user) {
+    // "Confirm email" is enabled on this Supabase project, so there's no
+    // active session yet — the person must check their inbox and confirm
+    // before they can sign in for the first time.
+    err.style.display = 'none';
+    showToast('Account created! Please check your email to confirm, then sign in.', 'success');
+    showLoginForm();
+    return;
+  }
+  // Brand-new business: reset to a clean slate (no demo data) and create the Owner profile.
+  _currentAuthUserId = data.user.id;
+  resetStateForNewBusiness();
+  const staff = { id: Date.now(), name: name, email: email, role: 'Owner' };
+  state.staff = [staff];
   state.currentUser = staff;
-  // Ensure a permanent school key exists (generated once, never tied to email)
-  var sk = getSchoolKey();
   localStorage.setItem('gmbmaUser', JSON.stringify(staff));
+  if (typeof fbSaveAll === 'function') fbSaveAll();
   applyAuth();
   renderStaff();
   showToast('Owner account created!', 'success');
 }
 
-function doLogout() {
+async function doLogout() {
+  // Clean up Realtime channel before signing out — otherwise re-login
+  // throws "cannot add postgres_changes after subscribe()"
+  if (typeof _leadsChannel !== 'undefined' && _leadsChannel) {
+    try { _supabase.removeChannel(_leadsChannel); } catch(e) {}
+    _leadsChannel = null;
+  }
   state.currentUser = null;
+  _currentAuthUserId = null;
   localStorage.removeItem('gmbmaUser');
+  await _supabase.auth.signOut();
+  resetStateForNewBusiness();
   applyAuth();
 }
 
-function renderDemoAccounts() {
-  const list = $('demo-list');
-  if (!list) return;
-  list.innerHTML = state.staff.map(s => '<span>' + s.email + '</span><span style="text-align:right' + (s.role === 'Owner' ? ';color:var(--primary)' : '') + '">' + s.role + '</span>').join('');
+function showSetupForm() {
+  $('login-form').style.display = 'none';
+  $('setup-form').style.display = 'block';
+  $('login-subtitle').textContent = 'Welcome! Create your business account.';
+  $('login-error').style.display = 'none';
+}
+
+function showLoginForm() {
+  $('login-form').style.display = 'block';
+  $('setup-form').style.display = 'none';
+  $('login-subtitle').textContent = 'Sign in to your account';
+  $('login-error').style.display = 'none';
 }
 
 function applyAuth() {
@@ -3278,18 +3449,10 @@ function applyAuth() {
     else renderPage(state.currentPage);
   } else {
     overlay.classList.remove('hidden');
-    renderDemoAccounts();
     $('login-email').value = '';
+    $('login-password').value = '';
     $('login-error').style.display = 'none';
-    if (state.staff.length === 0) {
-      $('login-form').style.display = 'none';
-      $('setup-form').style.display = 'block';
-      $('login-subtitle').textContent = 'Welcome! Set up your school account.';
-    } else {
-      $('login-form').style.display = 'block';
-      $('setup-form').style.display = 'none';
-      $('login-subtitle').textContent = 'Sign in to your account';
-    }
+    showLoginForm();
   }
 }
 
@@ -5143,7 +5306,8 @@ function editLead(id) {
 }
 
 function copyLeadCaptureLink() {
-  var url = location.href.split('?')[0].split('#')[0] + '?leadform=1';
+  var sk = getSchoolKey();
+  var url = location.href.split('?')[0].split('#')[0] + '?leadform=1' + (sk ? '&sk=' + encodeURIComponent(sk) : '');
   if (navigator.clipboard) {
     navigator.clipboard.writeText(url).then(function() {
       showToast('Lead capture link copied to clipboard!', 'success');
@@ -6282,6 +6446,14 @@ function renderMarketing() {
   renderSmsHistory();
   renderEmailHistory();
   renderQrHistory();
+  // Pre-fill the QR destination field with this business's own lead capture
+  // link (includes their school key) so the QR always points to the right
+  // account's form, never a hardcoded/shared URL.
+  var qrUrlInput = $('qr-url');
+  if (qrUrlInput && !qrUrlInput.value) {
+    var sk = getSchoolKey();
+    qrUrlInput.value = location.href.split('?')[0].split('#')[0] + '?leadform=1' + (sk ? '&sk=' + encodeURIComponent(sk) : '');
+  }
 }
 
 function updateSmsCounter() {
@@ -12963,37 +13135,16 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
+  // Expose as global so onAuthenticated (defined outside DOMContentLoaded) can call it
+  window.loadLocalData = loadLocalData;
 
   function finishInit() {
-    // Pre-seed owner account if no staff exists (must happen before Firebase listeners).
-    // NOTE: this should only ever run on a truly brand-new browser/account where
-    // Supabase returned nothing AND localStorage has nothing. We do NOT force or
-    // overwrite gmbmaSchoolKey here — getSchoolKey() already guarantees a stable,
-    // permanent key exists, and stomping it with a hardcoded value would disconnect
-    // this browser from any real data that was already saved under its real key.
-    if (state.staff.length === 0) {
-      var ownerAccount = { id: 1, name: 'Grandmaster Baez', email: 'info@masterbaez.com', role: 'Owner' };
-      state.staff.push(ownerAccount);
-      localStorage.setItem('gmbmaStaff', JSON.stringify(state.staff));
-      if (typeof fbSaveAll === 'function') fbSaveAll();
-    }
     renderPrograms();
     renderStaff();
     initShareLinks();
-    // Start Firebase real-time listener for leads (uses school key from localStorage)
+    // Start Firebase real-time listener for leads (uses the logged-in user's key)
     if (typeof fbListenLeads === 'function') fbListenLeads();
-    // Preserve existing Firebase data on first load
-    if (typeof fbSaveAll === 'function' && state.staff.length > 0) fbSaveAll();
 
-    // Restore saved session or show login
-    const savedUser = localStorage.getItem('gmbmaUser');
-    if (savedUser) {
-      try {
-        const parsed = JSON.parse(savedUser);
-        parsed.role = normRole(parsed.role);
-        state.currentUser = parsed;
-      } catch(e) {}
-    }
     applyAuth();
     applyLang();
 
@@ -13002,7 +13153,16 @@ document.addEventListener('DOMContentLoaded', function() {
       $('login-overlay').classList.add('hidden');
       $('public-lead-form').style.display = '';
       var urlLang = null;
-      try { var params = new URLSearchParams(location.search); urlLang = params.get('lang'); } catch(e) {}
+      var urlSk = null;
+      try {
+        var params = new URLSearchParams(location.search);
+        urlLang = params.get('lang');
+        urlSk = params.get('sk');
+      } catch(e) {}
+      // Public visitors never log in, so the only way fbSaveLead() knows
+      // which business this lead belongs to is the "sk" link parameter
+      // (added automatically to every Lead Capture link/QR code).
+      if (urlSk) { _currentAuthUserId = urlSk; }
       var lcfLang = 'en';
       if (urlLang === 'es' || urlLang === 'en') { lcfLang = urlLang; }
       else if (navigator.language && navigator.language.toLowerCase().indexOf('es') === 0) { lcfLang = 'es'; }
@@ -13020,26 +13180,50 @@ document.addEventListener('DOMContentLoaded', function() {
     loadAutomations();
     loadGateways();
   }
+  // Expose as global so startApp (async, runs inside DOMContentLoaded) can call it
+  window.finishInit = finishInit;
+  // STARTUP: check Supabase Auth session FIRST. Nothing business-data
+  // related loads until we know which (if any) business is logged in —
+  // this is what keeps each business's data isolated from every other
+  // business using this same CRM file.
+  // ============================================================
+  (async function startApp() {
+    var session = null;
+    try {
+      // Timeout after 5s — if Supabase doesn't respond (e.g. offline, file://
+      // origin, slow network) we fall through to the login screen instead of
+      // freezing the page forever.
+      var sessionResult = await Promise.race([
+        _supabase.auth.getSession(),
+        new Promise(function(resolve) { setTimeout(function() { resolve({ data: { session: null } }); }, 5000); })
+      ]);
+      session = sessionResult && sessionResult.data && sessionResult.data.session;
+    } catch(e) { session = null; }
 
-  // Load from Firebase first, then fallback to localStorage
-  if (typeof fbLoadAll === 'function') {
-    fbLoadAll(function() {
-      loadLocalData();
+    if (session && session.user) {
+      // Returning, already-logged-in business: onAuthenticated() handles
+      // everything — loads data, restores profile, renders the app.
+      _currentAuthUserId = session.user.id;
+      await onAuthenticated(session.user);
+    } else {
+      // Nobody logged in yet: show a clean, empty app underneath the login
+      // screen. We deliberately do NOT call loadLocalData() here — that
+      // would risk pulling in another, previously-logged-out business's
+      // cached data from this browser's localStorage before anyone has
+      // proven who they are.
+      resetStateForNewBusiness();
       finishInit();
-    });
-  } else {
-    loadLocalData();
-    finishInit();
-  }
-  // Load settings from Firebase independently
-  if (typeof fbLoadSettings === 'function') {
-    fbLoadSettings(function(settings) {
-      if (settings) {
-        try { localStorage.setItem('gmbmaSettings', JSON.stringify(settings)); } catch(e) {}
-        loadSavedSettings();
+    }
+
+    // Keep app state in sync if the user logs in/out in another tab,
+    // or if their session expires.
+    _supabase.auth.onAuthStateChange(function(event, newSession) {
+      if (event === 'SIGNED_OUT') {
+        _currentAuthUserId = null;
       }
     });
-  }
+  })();
+
 
   // Keyboard shortcuts (Ctrl+1-9) and Escape + Enter navigation in modals
   document.addEventListener('keydown', function(e) {
