@@ -509,7 +509,7 @@ tr:hover .row-action{opacity:1}
 </style>
 
   <!-- Supabase Integration -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
     // ============================================================
@@ -519,7 +519,14 @@ tr:hover .row-action{opacity:1}
     const SUPABASE_ANON_KEY = 'sb_publishable_E-BjPaQd7JXKbRE6ocFfrA_XrBtvxM3'; // Paste your anon/public key here
     // ============================================================
 
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      realtime: {
+        params: { eventsPerSecond: 2 }
+      },
+      global: {
+        headers: { 'x-app-name': 'gmbma-crm' }
+      }
+    });
 
     // Unique key identifying THIS LOGGED-IN BUSINESS's data in Supabase.
     // It is the Supabase Auth user id (a UUID) of whoever is currently
@@ -3403,15 +3410,25 @@ async function doSetup() {
 }
 
 async function doLogout() {
-  // Clean up Realtime channel before signing out — otherwise re-login
-  // throws "cannot add postgres_changes after subscribe()"
+  // Clean up Realtime channel before signing out
   if (typeof _leadsChannel !== 'undefined' && _leadsChannel) {
     try { _supabase.removeChannel(_leadsChannel); } catch(e) {}
     _leadsChannel = null;
   }
   state.currentUser = null;
   _currentAuthUserId = null;
-  localStorage.removeItem('gmbmaUser');
+  // Clear ALL cached business data from this browser's localStorage so the
+  // next person who logs in from this same computer doesn't see leftover data
+  // (settings, school name, logo, etc.) from the previous account.
+  var keysToRemove = ['gmbmaUser','gmbmaSettings','gmbmaPrograms','gmbmaStaff',
+    'gmbmaLeads','gmbmaTrash','gmbmaMembers','gmbmaAttendance','gmbmaCompetitions',
+    'gmbmaBilling','gmbmaEvents','gmbmaAppointments','gmbmaExamNoShows',
+    'gmbmaLeaderboard','gmbmaBonusPoints','gmbmaPointsConfig','gmbmaDailyStats',
+    'gmbmaProShopProducts','gmbmaProShopSales','gmbmaSchoolLogo','gmbmaAutomationLog',
+    'gmbmaSmsCampaigns','gmbmaEmailCampaigns','gmbmaQrCodes','gmbmaSocialPosts',
+    'gmbmaContentLibrary','gmbmaAutomations','gmbmaCustomCategories','gmbmaGateways',
+    'gmbmaConduct','gmbmaMarketingSpend','gmbmaCredentials','gmbmaShareLinks'];
+  keysToRemove.forEach(function(k) { try { localStorage.removeItem(k); } catch(e) {} });
   await _supabase.auth.signOut();
   resetStateForNewBusiness();
   applyAuth();
