@@ -3548,6 +3548,14 @@ async function toggleAccessCode(code, newStatus) {
   renderAccessCodes();
 }
 
+async function deleteAccessCode(code) {
+  if (!confirm('Delete code ' + code + ' permanently? This cannot be undone.')) return;
+  const { error } = await _supabase.from('access_codes').delete().eq('code', code);
+  if (error) { showToast('Could not delete code: ' + error.message, 'error'); return; }
+  showToast('Code deleted.', 'success');
+  renderAccessCodes();
+}
+
 async function convertTrialToPaid(code) {
   const { error } = await _supabase.from('access_codes').update({ trial_converted: true }).eq('code', code);
   if (error) { showToast('Could not update code: ' + error.message, 'error'); return; }
@@ -3585,6 +3593,7 @@ async function renderAccessCodes() {
     }
     else if (row.status === 'disabled') actionBtn = '<button class="btn btn-secondary" style="padding:4px 10px;font-size:12px" onclick="toggleAccessCode(\'' + row.code + '\',\'used\')">Re-enable</button>';
     else actionBtn = '<button class="btn btn-secondary" style="padding:4px 10px;font-size:12px" onclick="toggleAccessCode(\'' + row.code + '\',\'disabled\')">Cancel code</button>';
+    actionBtn += ' <button class="btn btn-secondary" style="padding:4px 10px;font-size:12px;color:var(--danger);border-color:var(--danger)" onclick="deleteAccessCode(\'' + row.code + '\')">Delete</button>';
     return '<tr><td style="font-family:monospace">' + row.code + '</td><td>' + (row.client_name || '—') + trialNote + '</td><td>' + (row.client_email || '—') + '</td><td>' + badge + '</td><td>' + actionBtn + '</td></tr>';
   }).join('');
 }
