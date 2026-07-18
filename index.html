@@ -2161,7 +2161,8 @@ tr:hover .row-action{opacity:1}
         <label style="font-size:13px;font-weight:500;margin-bottom:6px;display:block">Password</label>
         <input id="setup-password" type="password" placeholder="At least 6 characters" onkeydown="if(event.key==='Enter')doSetup()" style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.08);padding:12px 14px;border-radius:10px">
       </div>
-      <button class="btn btn-primary" onclick="doSetup()" style="width:100%;margin-top:12px;padding:12px;font-size:14px;font-weight:600;border-radius:10px;letter-spacing:0.3px">Create Owner Account</button>
+      <button class="btn btn-primary" onclick="doSetup()" style="width:100%;margin-top:12px;padding:12px;font-size:14px;font-weight:600;border-radius:10px;letter-spacing:0.3px">Create Account</button>
+      <p id="setup-error" class="text-sm" style="color:var(--danger);margin-top:8px;display:none"></p>
       <p class="text-sm" style="margin-top:14px;text-align:center;color:var(--muted)">
         Already have an account? <a href="#" onclick="showLoginForm();return false;" style="color:var(--primary);text-decoration:none;font-weight:500">Sign in</a>
       </p>
@@ -2838,8 +2839,11 @@ tr:hover .row-action{opacity:1}
   <div class="modal" style="max-width:720px">
     <h3>Manage Access Codes</h3>
     <p class="text-sm text-muted mb-2">Generate a code for a client who has paid (Intuit) and give it to them to create their account. Disable a code any time to cut off access for a client who stops paying.</p>
-    <div class="flex gap-3" style="margin:14px 0">
+    <div class="flex gap-3" style="margin:14px 0;align-items:center">
       <input id="ac-client-name" placeholder="Client / business name" style="flex:1">
+      <label class="text-sm" style="display:flex;align-items:center;gap:6px;white-space:nowrap">
+        <input type="checkbox" id="ac-is-trial" style="width:auto"> 7-day trial
+      </label>
       <button class="btn btn-primary" onclick="createAccessCode()">Generate Code</button>
     </div>
     <div style="overflow-x:auto">
@@ -3525,12 +3529,15 @@ function generateAccessCodeString() {
 
 async function createAccessCode() {
   const nameInput = $('ac-client-name');
+  const trialInput = $('ac-is-trial');
   const clientName = nameInput ? nameInput.value.trim() : '';
   if (!clientName) { showToast('Enter a client / business name first.', 'error'); return; }
   const code = generateAccessCodeString();
-  const { error } = await _supabase.from('access_codes').insert({ code: code, status: 'unused', client_name: clientName });
+  const isTrial = !!(trialInput && trialInput.checked);
+  const { error } = await _supabase.from('access_codes').insert({ code: code, status: 'unused', client_name: clientName, is_trial: isTrial });
   if (error) { showToast('Could not create code: ' + error.message, 'error'); return; }
   if (nameInput) nameInput.value = '';
+  if (trialInput) trialInput.checked = false;
   showToast('Code created: ' + code, 'success');
   renderAccessCodes();
 }
@@ -3538,6 +3545,13 @@ async function createAccessCode() {
 async function toggleAccessCode(code, newStatus) {
   const { error } = await _supabase.from('access_codes').update({ status: newStatus }).eq('code', code);
   if (error) { showToast('Could not update code: ' + error.message, 'error'); return; }
+  renderAccessCodes();
+}
+
+async function convertTrialToPaid(code) {
+  const { error } = await _supabase.from('access_codes').update({ trial_converted: true }).eq('code', code);
+  if (error) { showToast('Could not update code: ' + error.message, 'error'); return; }
+  showToast('Marked as paid — trial expiry no longer applies.', 'success');
   renderAccessCodes();
 }
 
@@ -3550,11 +3564,28 @@ async function renderAccessCodes() {
   if (!data || !data.length) { body.innerHTML = '<tr><td colspan="5" class="text-muted text-sm">No codes yet.</td></tr>'; return; }
   body.innerHTML = data.map(function(row) {
     var badge = row.status === 'unused' ? '<span style="color:#22c55e">Unused</span>' : row.status === 'used' ? '<span style="color:var(--muted)">Used</span>' : '<span style="color:var(--danger)">Disabled</span>';
+    var trialNote = '';
+    if (row.is_trial) {
+      if (row.trial_converted) {
+        trialNote = '<br><span class="text-xs" style="color:#22c55e">Trial → converted to paid</span>';
+      } else if (row.trial_expires_at) {
+        var expired = new Date(row.trial_expires_at) < new Date();
+        var dateStr = new Date(row.trial_expires_at).toLocaleDateString();
+        trialNote = '<br><span class="text-xs" style="color:' + (expired ? 'var(--danger)' : '#f59e0b') + '">Trial ' + (expired ? 'expired ' : 'expires ') + dateStr + '</span>';
+      } else {
+        trialNote = '<br><span class="text-xs" style="color:#f59e0b">Trial (not started)</span>';
+      }
+    }
     var actionBtn = '';
-    if (row.status === 'used') actionBtn = '<button class="btn btn-danger" style="padding:4px 10px;font-size:12px" onclick="toggleAccessCode(\'' + row.code + '\',\'disabled\')">Disable</button>';
+    if (row.status === 'used') {
+      actionBtn = '<button class="btn btn-danger" style="padding:4px 10px;font-size:12px" onclick="toggleAccessCode(\'' + row.code + '\',\'disabled\')">Disable</button>';
+      if (row.is_trial && !row.trial_converted) {
+        actionBtn += ' <button class="btn btn-secondary" style="padding:4px 10px;font-size:12px" onclick="convertTrialToPaid(\'' + row.code + '\')">Convert to Paid</button>';
+      }
+    }
     else if (row.status === 'disabled') actionBtn = '<button class="btn btn-secondary" style="padding:4px 10px;font-size:12px" onclick="toggleAccessCode(\'' + row.code + '\',\'used\')">Re-enable</button>';
     else actionBtn = '<button class="btn btn-secondary" style="padding:4px 10px;font-size:12px" onclick="toggleAccessCode(\'' + row.code + '\',\'disabled\')">Cancel code</button>';
-    return '<tr><td style="font-family:monospace">' + row.code + '</td><td>' + (row.client_name || '—') + '</td><td>' + (row.client_email || '—') + '</td><td>' + badge + '</td><td>' + actionBtn + '</td></tr>';
+    return '<tr><td style="font-family:monospace">' + row.code + '</td><td>' + (row.client_name || '—') + trialNote + '</td><td>' + (row.client_email || '—') + '</td><td>' + badge + '</td><td>' + actionBtn + '</td></tr>';
   }).join('');
 }
 
@@ -3568,7 +3599,7 @@ async function doSetup() {
   const email = $('setup-email').value.trim().toLowerCase();
   const password = $('setup-password').value;
   const accessCode = $('setup-access-code').value.trim().toUpperCase();
-  const err = $('login-error');
+  const err = $('setup-error');
   if (!accessCode) { err.textContent = 'Please enter your access code. Contact your GMBMA rep if you don\'t have one.'; err.style.display = 'block'; return; }
   if (!name || !email || !password) { err.textContent = 'Please fill in all fields.'; err.style.display = 'block'; return; }
   if (password.length < 6) { err.textContent = 'Password must be at least 6 characters.'; err.style.display = 'block'; return; }
@@ -3649,6 +3680,7 @@ function showSetupForm() {
   $('reset-password-form').style.display = 'none';
   $('login-subtitle').textContent = 'Welcome! Create your business account.';
   $('login-error').style.display = 'none';
+  $('setup-error').style.display = 'none';
 }
 
 function showLoginForm() {
@@ -3658,6 +3690,7 @@ function showLoginForm() {
   $('reset-password-form').style.display = 'none';
   $('login-subtitle').textContent = 'Sign in to your account';
   $('login-error').style.display = 'none';
+  $('setup-error').style.display = 'none';
 }
 
 function showForgotForm() {
