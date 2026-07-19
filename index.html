@@ -758,6 +758,10 @@ tr:hover .row-action{opacity:1}
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
         Waiver
       </div>
+      <div class="nav-item" data-page="agreements">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.66 0 3.22.45 4.56 1.24"/><path d="M19 5l-2 2"/></svg>
+        <span data-i18n="nav_agreements">Agreements</span>
+      </div>
       <div class="nav-item" data-page="gateways">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="22" height="12" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
         Payment Gateways
@@ -911,7 +915,7 @@ tr:hover .row-action{opacity:1}
       <div id="page-members" class="page">
         <div class="flex flex-wrap gap-3 items-center justify-between mb-4">
           <div class="flex gap-2 flex-wrap">
-            <button class="btn btn-secondary btn-sm" onclick="showModal('agreement-modal');renderTemplates()" data-i18n="agreement_templates">Agreement Templates</button>
+            <button class="btn btn-secondary btn-sm" onclick="agModalPresetMemberId=null;showModal('agreement-modal');renderTemplates();populateAgreementMemberSelect()" data-i18n="agreement_templates">Agreement Templates</button>
             <button class="btn btn-secondary btn-sm" onclick="showModal('import-modal');$('import-result').innerHTML=''" data-i18n="import">Import</button>
             <button class="btn btn-primary btn-sm" onclick="resetAddMemberForm();showModal('add-member-modal')" id="btn-add-member">+ Add Member</button>
           </div>
@@ -1356,6 +1360,20 @@ tr:hover .row-action{opacity:1}
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ AGREEMENTS (all templates, full page) ============ -->
+      <div id="page-agreements" class="page">
+        <div class="card">
+          <div class="card-header">
+            <h3 data-i18n="agreements_page_title">Agreements</h3>
+            <button class="btn btn-primary btn-sm" onclick="agModalPresetMemberId=null;showModal('agreement-modal');renderTemplates();populateAgreementMemberSelect()" data-i18n="generate_agreement">Generate Agreement</button>
+          </div>
+          <div class="card-body">
+            <input id="agreements-search" oninput="renderAgreementsPage()" placeholder="Search agreements..." style="margin-bottom:12px">
+            <div id="agreements-page-list"></div>
           </div>
         </div>
       </div>
@@ -2999,6 +3017,12 @@ tr:hover .row-action{opacity:1}
   <div class="modal" style="max-width:600px">
     <h3 data-i18n="agreement_templates">Agreement Templates</h3>
     <div class="form-section">
+      <label data-i18n="assign_to_member_label">Assign to Member</label>
+      <select id="ag-member-select">
+        <option value="" data-i18n="ag_member_general">General (no specific member)</option>
+      </select>
+    </div>
+    <div class="form-section">
       <label data-i18n="upload_template">Upload Template (PDF)</label>
       <input type="file" id="template-file" accept=".pdf" style="padding:6px">
     </div>
@@ -3006,13 +3030,25 @@ tr:hover .row-action{opacity:1}
     <button class="btn btn-secondary btn-sm" onclick="toggleCustomizeFields()" data-i18n="generate_agreement">Generate Agreement</button>
     <div id="agreement-customize" style="display:none;margin-top:12px;padding:12px;background:var(--bg);border-radius:var(--radius)">
       <p class="text-sm font-semibold mb-2" data-i18n="customize_agreement">Customize Agreement</p>
-      <div class="form-row">
-        <div class="form-section"><label data-i18n="school_name_label">School Name</label><input id="ag-school" value="Your School Name"></div>
-        <div class="form-section"><label data-i18n="address_label">Address</label><input id="ag-address" value="123 Main Street, Springfield, IL 62701"></div>
+      <div class="form-section">
+        <label data-i18n="agreement_type_label">Agreement Type</label>
+        <select id="ag-doc-type">
+          <option value="membership" data-i18n="ag_type_membership">Membership Agreement</option>
+          <option value="enrollment" data-i18n="ag_type_enrollment">Enrollment Contract</option>
+          <option value="cancellation" data-i18n="ag_type_cancellation">Cancellation Policy Agreement</option>
+          <option value="payment" data-i18n="ag_type_payment">Payment Authorization Agreement</option>
+          <option value="photo" data-i18n="ag_type_photo">Photo &amp; Video Release</option>
+          <option value="belt" data-i18n="ag_type_belt">Belt Testing Agreement</option>
+          <option value="custom" data-i18n="ag_type_custom">Custom Agreement</option>
+        </select>
       </div>
       <div class="form-row">
-        <div class="form-section"><label data-i18n="phone_label">Phone</label><input id="ag-phone" value="(954) " oninput="formatPhoneInput(this)"></div>
-        <div class="form-section"><label>Email</label><input id="ag-email" value="info@gmbma.com"></div>
+        <div class="form-section"><label data-i18n="school_name_label">School Name</label><input id="ag-school" value="Master Baez Martial Arts"></div>
+        <div class="form-section"><label data-i18n="address_label">Address</label><input id="ag-address" value="9450 Griffin Road, Cooper City, Florida 33328"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-section"><label data-i18n="phone_label">Phone</label><input id="ag-phone" value="(954) 380-1340" oninput="formatPhoneInput(this)"></div>
+        <div class="form-section"><label>Email</label><input id="ag-email" value="info@masterbaez.com"></div>
       </div>
       <div class="form-section">
         <label data-i18n="programs_pricing">Programs &amp; Pricing</label>
@@ -3420,6 +3456,7 @@ const pageTitles = {
   proshop:{title:'Pro Shop',sub:'Products and sales management'},
   reports:{title:'Reports',sub:'Data and analytics'},
   waiver:{title:'Waiver',sub:'Digital waiver signing'},
+  agreements:{title:'Agreements',sub:'All generated and signed agreements'},
   gateways:{title:'Payment Gateways',sub:'Payment processing setup'},
   learning:{title:'Learning Center',sub:'Tutorials and guides'},
   conduct:{title:'Conducta', sub:'Comportamiento y certificados'},
@@ -3431,11 +3468,11 @@ const pageTitles = {
 
 const ROLE_MAP = { 'Admin':'Owner','Instructor':'Instructor','Manager':'Manager' };
 const PERMISSION = {
-  Owner:       { pages: ['dashboard','members','leads','attendance','calendar','billing','events','proshop','reports','waiver','gateways','learning','conduct','marketing','social','settings','trash'], admin: true  },
-  Manager:     { pages: ['dashboard','members','leads','attendance','calendar','billing','events','proshop','reports','waiver','gateways','learning','conduct','marketing','social','trash'],        admin: false },
+  Owner:       { pages: ['dashboard','members','leads','attendance','calendar','billing','events','proshop','reports','waiver','agreements','gateways','learning','conduct','marketing','social','settings','trash'], admin: true  },
+  Manager:     { pages: ['dashboard','members','leads','attendance','calendar','billing','events','proshop','reports','waiver','agreements','gateways','learning','conduct','marketing','social','trash'],        admin: false },
   'Program Director': { pages: ['dashboard','members','leads','attendance','events','proshop','conduct'], admin: false },
   Instructor:  { pages: ['dashboard','attendance','calendar','events','learning','conduct'], admin: false },
-  'Front Desk':{ pages: ['members','leads','attendance','billing','waiver','gateways'], admin: false }
+  'Front Desk':{ pages: ['members','leads','attendance','billing','waiver','agreements','gateways'], admin: false }
 };
 
 function normRole(r) { return ROLE_MAP[r] || r; }
@@ -3835,6 +3872,7 @@ function renderPage(page) {
     case 'marketing': renderMarketing(); break;
     case 'social': renderSocial(); break;
     case 'waiver': loadWaiverText(); initSignaturePad(); break;
+    case 'agreements': renderTemplates(); break;
   }
 }
 
@@ -5244,6 +5282,17 @@ function showMemberActivity(id) {
   } else {
     html += '<p class="text-sm text-muted" style="padding:8px 0">' + t('ma_no_data') + '</p>';
   }
+  html += '</details>';
+
+  // Agreements
+  const memberAgreements = state.templates.filter(tpl => tpl.memberId != null && String(tpl.memberId) === String(m.id)).sort((a,b) => (b.uploadedAt||'').localeCompare(a.uploadedAt||''));
+  html += '<details' + (memberAgreements.length ? ' open' : '') + '><summary class="font-semibold text-sm" style="cursor:pointer;padding:8px 0">&#x1F4C4; ' + t('ma_agreements') + ' (' + memberAgreements.length + ')</summary>';
+  if (memberAgreements.length) {
+    html += memberAgreements.map(templateRowHTML).join('');
+  } else {
+    html += '<p class="text-sm text-muted" style="padding:8px 0">' + t('ma_no_data') + '</p>';
+  }
+  html += '<button class="btn btn-sm btn-primary mt-2" onclick="closeModal(\'member-activity-modal\');openAgreementModalForMember(' + m.id + ')" style="gap:4px">+ ' + t('generate_agreement') + '</button>';
   html += '</details>';
 
   // Competition History
@@ -9103,10 +9152,10 @@ function copyText(text) {
 let templateSigCanvas, templateSigCtx, templateIsDrawing = false;
 
 let agPrograms = [
-  { name: 'Adult Program', price: 149 },
-  { name: 'Kids Program', price: 129 },
-  { name: 'Private Lessons', price: 75 },
-  { name: 'Competition Team', price: 199 }
+  { name: 'Tiny Tigers (Ages 4–6)', price: 150, frequency: 'monthly', include: true },
+  { name: 'Kids Martial Arts (Ages 7–12)', price: 175, frequency: 'monthly', include: true },
+  { name: 'Adult Fitness & Self Defense (13 & Up)', price: 175, frequency: 'monthly', include: true },
+  { name: 'Life Skills Martial Arts Program', price: 125, frequency: 'weekly', include: true }
 ];
 
 const agProgramNamesEN = ['Adult Program', 'Kids Program', 'Private Lessons', 'Competition Team'];
@@ -9117,19 +9166,53 @@ function syncAgProgramsLang() {
   const toSet = currentLang === 'es' ? agProgramNamesES : agProgramNamesEN;
   agPrograms = agPrograms.map(p => {
     const idx = fromSet.indexOf(p.name);
-    return idx > -1 ? { name: toSet[idx], price: p.price } : p;
+    return idx > -1 ? { name: toSet[idx], price: p.price, frequency: p.frequency, include: p.include } : p;
   });
 }
 
 let agClauses = [
-  { id: 'c1', title: '1. Term & Membership', body: 'This agreement begins on the date of signing and continues on a month-to-month basis unless cancelled with 30 days written notice. Membership includes access to scheduled classes, use of facilities, and participation in school events as outlined in the current class schedule.' },
-  { id: 'c2', title: '2. Tuition & Fees', body: 'Monthly tuition is due on the 1st of each month. Late payments incur a $25 fee after the 5th. Returned checks carry a $35 fee. The school reserves the right to adjust pricing with 30 days notice.\n\n{{pricingTable}}' },
-  { id: 'c3', title: '3. Release of Liability', body: 'I acknowledge that participation in martial arts training involves inherent risks, including but not limited to physical injury, property damage, or death. I voluntarily assume all such risks on behalf of myself and/or my child.\n\nI hereby release and discharge {{school}}, its owners, employees, instructors, and agents from any and all claims, demands, or causes of action arising from participation in any activities, whether occurring on or off the premises.' },
-  { id: 'c4', title: '4. Medical Treatment', body: 'I consent to receive medical treatment deemed necessary in case of injury or illness during training or school events. I understand that I am responsible for all medical costs incurred. I confirm that the student is in good physical health and has no medical conditions that would prevent safe participation.' },
-  { id: 'c5', title: '5. Photo & Video Release', body: 'I grant {{school}} permission to use photographs and videos of me and/or my child for promotional purposes including website, social media, and marketing materials without compensation. I understand I may revoke this consent in writing at any time.' },
-  { id: 'c6', title: '6. Code of Conduct', body: 'I agree to follow all school rules, show respect to instructors and fellow students, maintain proper hygiene, and wear required uniform and safety equipment. I understand that inappropriate behavior, bullying, or repeated policy violations may result in dismissal without refund.' },
-  { id: 'c7', title: '7. Cancellation & Refund Policy', body: 'Membership may be cancelled with 30 days written notice. Registration fees are non-refundable. Uniform and equipment purchases are non-refundable. Program credits may be issued at the school\'s discretion but do not expire.' },
-  { id: 'c8', title: '8. Acknowledgment', body: 'I have read, understood, and agree to all terms and conditions outlined in this agreement. I certify that all information provided is accurate and complete.' }
+  { id: 'c1', title: '1. Membership Agreement', body: 'This Student Membership & Financial Agreement ("Agreement") is entered into between {{school}} ("School") and the undersigned student and/or parent or legal guardian ("Member").\n\nBy signing this Agreement, the Member acknowledges and agrees to all terms, policies, financial obligations, safety requirements, and conditions contained herein.\n\nMembership provides access to scheduled martial arts classes, approved training activities, school events, and programs according to the student\'s enrolled program.\n\nMembership is personal and may not be transferred, assigned, or shared with another person.\n\n{{school}} reserves the right to modify class schedules, instructors, curriculum, programs, and school policies when necessary to maintain quality instruction and proper operation of the school.' },
+  { id: 'c2', title: '2. Membership Term', body: 'Membership begins on the enrollment date listed above and continues until properly cancelled according to the Cancellation Policy contained in this Agreement.\n\nMembership operates on a continuing basis and does not automatically terminate due to: student absence, vacation, illness, holidays, school breaks, failure to attend classes, or temporary loss of interest.\n\nThe Member remains responsible for all tuition and fees until proper written cancellation has been completed.' },
+  { id: 'c3', title: '3. Program Participation', body: 'The Member understands that martial arts training requires commitment, attendance, discipline, and consistent practice.\n\nClass schedules, training levels, and program requirements may vary depending on age, skill level, attendance, instructor evaluation, and school curriculum.\n\nEnrollment in a program does not guarantee advancement, belt promotion, competition participation, or completion within a specific period of time.' },
+  { id: 'c4', title: '4. Membership Benefits', body: 'Membership may include: scheduled martial arts classes, instructor guidance and training, participation in approved school activities, and access to curriculum appropriate for the enrolled program.\n\nAdditional services, including but not limited to private lessons, camps, tournaments, seminars, special events, equipment, uniforms, merchandise, and testing fees, may require separate payment.' },
+  { id: 'c5', title: '5. Change of Program', body: '{{school}} may recommend a change of program when appropriate based on: student age, skill development, physical ability, training goals, and instructor evaluation.\n\nChanges in program level may result in changes to tuition or fees.' },
+  { id: 'c6', title: '6. Tuition and Payment Responsibilities', body: 'The Member agrees to pay all tuition, fees, and charges according to the program and payment schedule selected in the Program Information section above.\n\nCurrent Tuition Rates:\n\n{{pricingTable}}' },
+  { id: 'c7', title: '7. Weekly and Monthly Payment Terms', body: 'For Members on a Monthly Payment Schedule, tuition is due on the Billing Date selected above (the 1st or the 15th of each month).\n\nFor Members on a Weekly Payment Schedule, tuition is due on the weekly billing date selected above.\n\nAny other payment arrangement must be approved in writing by {{school}} management.' },
+  { id: 'c8', title: '8. AutoPay Authorization', body: 'By signing this Agreement, the Member authorizes {{school}} to automatically charge the payment method on file for: monthly or weekly tuition, registration fees, equipment purchases, testing fees, special events, camps, private lessons, birthday parties, outstanding balances, late fees, returned payment fees, processing fees, and any additional authorized purchases made by the Member.\n\nThis authorization remains in effect until cancelled in writing.' },
+  { id: 'c9', title: '9. Payment Processing Fee', body: 'All payments made by credit card, debit card, ACH, online payment, recurring billing, or any electronic payment method are subject to a 3.50% processing/convenience fee.\n\nThis processing fee applies to all purchases including but not limited to: Monthly or Weekly Tuition, Registration Fees, Testing Fees, Camps, Special Events, Seminars, Private Lessons, Birthday Parties, Tournaments, Equipment, Uniforms, Merchandise, Retail Items, Special Orders, and any additional products or services offered by {{school}}.\n\nCash payments or other approved payment methods not subject to processing fees will not incur this charge.' },
+  { id: 'c10', title: '10. Late Payment and Returned Payment Fees', body: 'Payments not received within five (5) days of the applicable Billing Date are subject to a $25 Late Fee.\n\nReturned checks or declined electronic payments are subject to a $35 Returned Payment Fee.\n\nDeclined electronic payments may be reprocessed without additional authorization.\n\nMembers with past due balances may not participate in classes, belt testing, tournaments, camps, or special events until their account is current.' },
+  { id: 'c11', title: '11. Registration Fees', body: 'Registration fees, when applicable, are due at the time of enrollment and are non-refundable and non-transferable.' },
+  { id: 'c12', title: '12. Equipment, Uniforms and Additional Services Fees', body: 'Students are required to wear the official {{school}} uniform and required safety equipment.\n\nUniforms, protective equipment, training gear, and the additional services described in the Membership Benefits section (private lessons, camps, tournaments, seminars, special events, testing fees) are sold or billed separately unless otherwise specified, and are subject to the Payment Processing Fee described above.' },
+  { id: 'c13', title: '13. Changes to Tuition and Fees', body: '{{school}} reserves the right to adjust tuition rates, fees, and pricing at any time with a minimum of thirty (30) days written notice to the Member.' },
+  { id: 'c14', title: '14. Membership Hold Policy', body: '{{school}} understands that unexpected situations may occur that require a temporary interruption of training. A Membership Hold is designed only for legitimate circumstances and is not intended to be used for convenience, vacations, short breaks, or temporary changes in personal schedules.\n\nA Membership Hold may be considered for situations including, but not limited to: medical conditions requiring extended recovery, serious family emergencies, military deployment, extended relocation, or other circumstances approved by {{school}} management.\n\nAll Membership Hold requests must: be submitted in writing, be received at least thirty (30) days prior to the requested hold date whenever possible, include the reason for the request, and receive written approval from management.\n\nA verbal request does not constitute an approved Membership Hold.' },
+  { id: 'c15', title: '15. Hold Period Requirements', body: 'Membership Holds are generally considered only for absences of two (2) months or longer. A one-month absence is not considered sufficient reason for placing a membership on hold.\n\nThe following situations do not automatically qualify for a Membership Hold: vacation, family trips, summer vacation, travel for one month, student choosing not to attend classes, temporary loss of interest, school holidays, or short-term schedule conflicts.\n\nMembers who choose not to attend training for these reasons may continue to be responsible for tuition according to this Agreement or may choose to cancel their membership according to the Cancellation Policy.' },
+  { id: 'c16', title: '16. Membership Reactivation After Hold', body: 'When an approved Membership Hold ends, the student may return to training by completing the reactivation process. A $50.00 Reactivation Fee per student will apply.\n\nThe Member understands that: class availability is not guaranteed after a long absence, program availability may change, tuition rates may change, new policies may apply, and the student may need to complete an evaluation before returning to certain programs.' },
+  { id: 'c17', title: '17. Extended Absence Without Approved Hold', body: 'If a student leaves the program for an extended period without an approved Membership Hold or written cancellation, the membership may be considered voluntarily cancelled.\n\nStudents returning after cancellation must complete the enrollment process again and may be responsible for: new registration fees, reactivation fees, current tuition rates, and updated agreement requirements.' },
+  { id: 'c18', title: '18. Cancellation Policy', body: 'Membership cancellation requires a minimum of thirty (30) days written notice.\n\nThe cancellation request must include: student name, parent/guardian name (if applicable), requested cancellation date, and reason for cancellation.\n\nCancellation requests must be submitted through an approved written method accepted by {{school}}.\n\nThe following do not constitute cancellation: stopping attendance, informing an instructor verbally, sending a message to another student, failing to make payments, or removing automatic payment information.\n\nThe Member remains responsible for all tuition and fees during the required notice period.' },
+  { id: 'c19', title: '19. No Refund Policy', body: 'All tuition payments, fees, purchases, and charges are considered earned when paid.\n\nNo refunds, credits, or adjustments will be provided for: missed classes, personal vacations, travel, student absences, change of schedule, loss of interest, failure to attend, cancellation during a billing period, unused membership time, equipment purchases, uniform purchases, merchandise purchases, testing fees, camps, events, private lessons, or special programs.\n\nAny exception or credit is provided solely at the discretion of {{school}} management.' },
+  { id: 'c20', title: '20. School Closures, Holidays & Breaks', body: '{{school}} plans its annual calendar in advance to allow families sufficient notice regarding scheduled school closures.\n\nScheduled closures may include, but are not limited to: Thanksgiving Break, Winter Break, Spring Break, Summer Break, Federal Holidays, Instructor Training Days, and Special School Events.\n\nThe school makes every reasonable effort to provide at least thirty (30) days advance notice of planned closures.' },
+  { id: 'c21', title: '21. Make-Up Classes During Scheduled Closures', body: '{{school}} schedules its calendar with consideration for planned breaks and closures.\n\nWhen applicable, the school may provide make-up classes, alternate class opportunities, special training sessions, or other options determined by management.\n\nIf make-up opportunities are offered and the student chooses not to attend, no refund, tuition credit, or extension will be provided.' },
+  { id: 'c22', title: '22. Summer Program Policy', body: 'Summer months may involve changes to schedules, camps, special programs, instructor availability, and class structures.\n\nStudents who wish to continue membership during summer remain responsible for tuition according to their agreement.\n\nA request to stop payment during summer vacation must follow the Membership Hold Policy or Cancellation Policy. A summer vacation, summer travel, or temporary absence does not automatically qualify for a Membership Hold.' },
+  { id: 'c23', title: '23. Unexpected School Closures', body: '{{school}} is not responsible for interruptions caused by circumstances beyond reasonable control, including: severe weather, hurricanes, natural disasters, government restrictions, emergency situations, power failures, or safety concerns.\n\nIn these situations, the school may provide, at its discretion: make-up classes, alternative training options, or schedule adjustments.\n\nNo refunds will be issued due to unexpected closures.' },
+  { id: 'c24', title: '24. School Rules and Code of Conduct', body: '{{school}} is committed to providing a safe, respectful, and positive learning environment for all students.\n\nBy enrolling in the program, the Member agrees that the student will follow all school rules, instructor directions, and safety requirements. Students are expected to: treat instructors, staff, parents, and other students with respect; follow instructor commands and safety instructions; maintain appropriate behavior during classes and school activities; demonstrate discipline, courtesy, and good sportsmanship; maintain proper hygiene; wear the required uniform and safety equipment; use training equipment properly; and respect school property.\n\nThe following behaviors are not permitted: bullying, harassment, disrespectful behavior, fighting outside of approved training activities, disrupting classes, inappropriate language, unsafe actions, damage to school property, or refusal to follow instructor directions.\n\n{{school}} reserves the right to suspend or terminate enrollment for behavior that negatively affects the safety, learning environment, or experience of other students. No refunds will be provided for termination due to misconduct or violation of school policies.' },
+  { id: 'c25', title: '25. Parent and Family Participation Policy', body: 'Parents and guardians play an important role in supporting student development. Parents agree to: encourage positive behavior, support attendance and commitment, respect instructor decisions, and allow instructors to conduct classes without unnecessary interruption.\n\nParents and guests must follow school rules while inside the facility. Parents may not interfere with instruction, discipline decisions, curriculum, or evaluations conducted by instructors.' },
+  { id: 'c26', title: '26. Attendance Policy', body: 'Consistent attendance is important for student progress. The Member understands that martial arts advancement requires regular attendance, practice, commitment, effort, and a positive attitude.\n\nThe school does not guarantee advancement based solely on attendance. Missed classes due to personal reasons, vacations, illness, or scheduling conflicts do not reduce tuition obligations.' },
+  { id: 'c27', title: '27. Belt Testing and Promotion Policy', body: 'Belt advancement is earned through demonstration of technical skill, knowledge of curriculum, discipline, respect, effort, attendance, and character development.\n\nPromotion decisions are made solely by {{school}} instructors. Participation in testing does not guarantee promotion. Students must meet all requirements established by the school before participating in belt testing.\n\nTesting fees, when applicable, are separate from tuition and are non-refundable.' },
+  { id: 'c28', title: '28. Training Safety Requirements', body: 'Students agree to follow all safety procedures during training. Students must: use equipment correctly, follow instructor directions, avoid unsafe behavior, report injuries immediately, and inform instructors of any physical limitations.\n\n{{school}} may modify exercises or training activities when necessary for safety.' },
+  { id: 'c29', title: '29. Medical Authorization and Health Information', body: 'The Member represents that the student is physically capable of participating in martial arts training.\n\nThe Member agrees to notify {{school}} of any medical condition, injury, limitation, allergy, or circumstance that may affect participation.\n\nIn the event of illness or injury during training or a school activity, the Member authorizes {{school}} staff to: provide reasonable assistance, contact emergency services when necessary, and obtain emergency medical treatment when deemed appropriate.\n\nThe Member understands that they are responsible for all medical expenses, treatment costs, transportation costs, and related expenses.' },
+  { id: 'c30', title: '30. Assumption of Risk', body: 'The Member understands and acknowledges that martial arts training and physical activities involve inherent risks. These risks may include, but are not limited to: physical contact, falls, strains, sprains, accidental injuries, equipment-related injuries, physical exertion, and participation in demonstrations, competitions, or events.\n\nThe Member voluntarily chooses to participate with full knowledge of these risks and agrees that participation is voluntary, assuming responsibility for the risks associated with training.' },
+  { id: 'c31', title: '31. Release of Liability and Waiver', body: 'In consideration for being allowed to participate in activities provided by {{school}}, the Member, on behalf of themselves and/or their minor child, releases and discharges {{school}}, its owners, instructors, employees, contractors, volunteers, representatives, and agents from claims, demands, damages, liabilities, actions, or causes of action arising from participation in martial arts training, classes, events, activities, demonstrations, or use of the facility.\n\nThis release includes claims arising from ordinary negligence to the fullest extent permitted by applicable Florida law.\n\nThe Member understands that this waiver does not eliminate responsibility for conduct that cannot legally be waived under Florida law.' },
+  { id: 'c32', title: '32. Participation Outside the Facility', body: 'The Member understands that {{school}} may participate in activities outside the regular training location, including demonstrations, tournaments, community events, seminars, camps, and special activities.\n\nThe same assumptions of risk and liability provisions contained in this Agreement apply to participation in these activities.' },
+  { id: 'c33', title: '33. Personal Property', body: '{{school}} is not responsible for lost, stolen, damaged, or misplaced personal belongings.\n\nStudents are responsible for their own equipment, uniforms, personal items, electronic devices, and valuables.' },
+  { id: 'c34', title: '34. Photo, Video and Media Release', body: 'The Member grants permission to {{school}} to photograph, record, and use images, videos, and other media of the student and/or parent/guardian for legitimate business purposes.\n\nApproved uses may include: website, social media platforms, advertising, marketing materials, promotional videos, school announcements, printed materials, and community promotions.\n\nThe Member understands that no compensation will be provided for the use of these images or recordings. This authorization remains valid unless revoked in writing.' },
+  { id: 'c35', title: '35. Electronic Communication Authorization', body: 'The Member authorizes {{school}} to communicate through available methods including: phone calls, text messages, email, automated billing notifications, class announcements, schedule updates, event information, and promotional information.\n\nThe Member agrees to maintain current contact information and notify the school of any changes.' },
+  { id: 'c36', title: '36. Electronic Payments and Digital Records', body: 'The Member agrees that electronic records, digital signatures, payment confirmations, emails, and electronic communications may be used as valid records related to this Agreement.\n\nThe Member acknowledges that electronic authorization has the same intent and effect as a written signature where permitted by law.' },
+  { id: 'c37', title: '37. Governing Law', body: 'This Agreement shall be governed by and interpreted according to the laws of the State of Florida. Any legal questions or disputes related to this Agreement shall be handled according to applicable Florida laws.' },
+  { id: 'c38', title: '38. Dispute Resolution', body: 'The parties agree that any disagreement or dispute related to this Agreement should first be addressed through good-faith communication and an attempt to resolve the matter directly.\n\nIf the dispute cannot be resolved, the parties agree to consider mediation before pursuing further legal action when appropriate. Any formal legal proceedings shall be conducted in accordance with applicable laws and jurisdiction requirements.' },
+  { id: 'c39', title: '39. Attorney\'s Fees and Collection Costs', body: 'The Member agrees that any unpaid balance owed to {{school}} remains the responsibility of the Member.\n\nIf collection efforts, legal action, or other enforcement actions become necessary to recover unpaid amounts, the Member may be responsible for reasonable collection costs, court costs, and attorney fees to the extent permitted by Florida law.' },
+  { id: 'c40', title: '40. Severability', body: 'If any portion of this Agreement is determined to be invalid, unenforceable, or unlawful, the remaining provisions shall continue in full force and effect.' },
+  { id: 'c41', title: '41. Entire Agreement', body: 'This Agreement represents the complete understanding between the Member and {{school}} regarding enrollment, membership, payment obligations, policies, and participation.\n\nThis Agreement replaces any previous verbal or written agreements related to membership. Any changes or modifications must be made in writing and approved by {{school}}.' },
+  { id: 'c42', title: '42. Acknowledgment of Understanding', body: 'By signing below, the Member confirms that: they have read this entire Agreement; they understand all policies and financial obligations; they understand the cancellation and hold policies; they understand the risks associated with martial arts training; they voluntarily agree to all terms and conditions; and they have had the opportunity to ask questions before signing.' }
 ];
 
 const agClausesEN = JSON.parse(JSON.stringify(agClauses));
@@ -9166,6 +9249,27 @@ function formatPhoneInput(input) {
   input.value = val;
 }
 
+var agModalPresetMemberId = null;
+
+function populateAgreementMemberSelect() {
+  const sel = $('ag-member-select');
+  if (!sel) return;
+  const generalLabel = t('ag_member_general');
+  sel.innerHTML = '<option value="">' + generalLabel + '</option>' +
+    state.members.slice().sort((a,b) => a.name.localeCompare(b.name)).map(m =>
+      '<option value="' + m.id + '">' + escHtml(m.name) + '</option>'
+    ).join('');
+  sel.value = agModalPresetMemberId ? String(agModalPresetMemberId) : '';
+}
+
+function openAgreementModalForMember(memberId) {
+  agModalPresetMemberId = memberId;
+  showModal('agreement-modal');
+  renderTemplates();
+  populateAgreementMemberSelect();
+  toggleCustomizeFields();
+}
+
 function toggleCustomizeFields() {
   const el = $('agreement-customize');
   el.style.display = el.style.display === 'none' ? 'block' : 'none';
@@ -9175,21 +9279,30 @@ function toggleCustomizeFields() {
 function renderAgPrograms() {
   const list = $('ag-programs-list');
   if (!list) return;
+  const freqOptions = [
+    ['monthly','/ month'], ['weekly','/ week'], ['hour','/ hour'], ['one-time','one-time']
+  ];
   list.innerHTML = agPrograms.map((p, i) =>
     '<div class="flex gap-2 items-center mb-2">' +
+    '<input type="checkbox" id="ag-pinclude-' + i + '" ' + (p.include !== false ? 'checked' : '') + ' title="Include this program\'s price in the generated document" style="width:auto">' +
     '<input id="ag-pname-' + i + '" value="' + p.name + '" placeholder="' + t('settings_prog_placeholder') + '" style="flex:1">' +
     '<div class="input-group" style="width:100px"><span>$</span><input id="ag-pprice-' + i + '" type="number" value="' + p.price + '" style="width:80px"></div>' +
+    '<select id="ag-pfreq-' + i + '" style="width:110px;font-size:12px">' +
+    freqOptions.map(f => '<option value="' + f[0] + '"' + ((p.frequency || 'monthly') === f[0] ? ' selected' : '') + '>' + f[1] + '</option>').join('') +
+    '</select>' +
     '<button class="btn btn-ghost btn-sm btn-icon" onclick="removeAgProgram(' + i + ')" style="color:var(--danger)">&#x2715;</button>' +
     '</div>'
-  ).join('');
+  ).join('') + '<p class="text-xs text-muted" style="margin-top:2px">Check a program to include its price when you generate the document below — uncheck the ones that don\'t apply to this student.</p>';
 }
 
 function addAgProgram() {
-  agPrograms.push({ name: '', price: 0 });
+  collectAgPrograms();
+  agPrograms.push({ name: '', price: 0, frequency: 'monthly', include: true });
   renderAgPrograms();
 }
 
 function removeAgProgram(index) {
+  collectAgPrograms();
   agPrograms.splice(index, 1);
   renderAgPrograms();
 }
@@ -9197,7 +9310,9 @@ function removeAgProgram(index) {
 function collectAgPrograms() {
   agPrograms = agPrograms.map((p, i) => ({
     name: ($('ag-pname-' + i) && $('ag-pname-' + i).value) || p.name,
-    price: parseFloat($('ag-pprice-' + i) && $('ag-pprice-' + i).value) || 0
+    price: parseFloat($('ag-pprice-' + i) && $('ag-pprice-' + i).value) || 0,
+    frequency: ($('ag-pfreq-' + i) && $('ag-pfreq-' + i).value) || p.frequency || 'monthly',
+    include: $('ag-pinclude-' + i) ? $('ag-pinclude-' + i).checked : (p.include !== false)
   }));
   return agPrograms;
 }
@@ -9217,11 +9332,13 @@ function renderAgClauses() {
 }
 
 function addAgClause() {
+  collectAgClauses();
   agClauses.push({ id: 'c' + Date.now(), title: 'New Clause', body: 'Enter clause text here...' });
   renderAgClauses();
 }
 
 function removeAgClause(index) {
+  collectAgClauses();
   agClauses.splice(index, 1);
   renderAgClauses();
 }
@@ -9241,43 +9358,109 @@ function processClauseBody(body, schoolName, pricingRows) {
     .replace(/\{\{pricingTable\}\}/g, pricingRows);
 }
 
+function buildAgreementName(includedPrograms) {
+  const typeSel = $('ag-doc-type');
+  const typeLabel = (typeSel && typeSel.options[typeSel.selectedIndex]) ? typeSel.options[typeSel.selectedIndex].text : t('doc_default_agreement_name');
+  const progNames = includedPrograms.map(p => p.name).filter(Boolean);
+  let name = typeLabel;
+  if (progNames.length) name += ' - ' + progNames.join(', ');
+  // Avoid duplicate names in the list — append (2), (3), etc.
+  let finalName = name;
+  let counter = 2;
+  while (state.templates.some(t2 => t2.name === finalName)) {
+    finalName = name + ' (' + counter + ')';
+    counter++;
+  }
+  return finalName;
+}
+
 function generateDefaultAgreement() {
   const now = new Date().toLocaleDateString();
+  const memberSel = $('ag-member-select');
+  const selectedMemberId = memberSel && memberSel.value ? memberSel.value : '';
+  const assignedMember = selectedMemberId ? state.members.find(m => String(m.id) === String(selectedMemberId)) : null;
   const schoolName = ($('ag-school') && $('ag-school').value) || 'Your School Name';
   const address = ($('ag-address') && $('ag-address').value) || '123 Main Street, Springfield, IL 62701';
   const phone = ($('ag-phone') && $('ag-phone').value) || '(954) ';
   const email = ($('ag-email') && $('ag-email').value) || 'info@gmbma.com';
   const programs = collectAgPrograms();
-  const pricingRows = programs.length ? '<table><tr><th>' + t('doc_program') + '</th><th>' + t('doc_monthly_rate') + '</th></tr>' + programs.map(p =>
-    '<tr><td>' + p.name + '</td><td>$' + p.price + (p.name.toLowerCase().includes('private') ? '/hr' : '') + '</td></tr>'
+  const includedPrograms = programs.filter(p => p.include !== false && p.name);
+  const freqLabel = { monthly: '/ month', weekly: '/ week', hour: '/ hour', 'one-time': 'one-time' };
+  const pricingRows = includedPrograms.length ? '<table><tr><th>' + t('doc_program') + '</th><th>' + t('doc_monthly_rate') + '</th></tr>' + includedPrograms.map(p =>
+    '<tr><td>' + p.name + '</td><td>$' + p.price + ' ' + (freqLabel[p.frequency] || '/ month') + '</td></tr>'
   ).join('') + '</table>' : '';
   const clauses = collectAgClauses();
   const clausesHTML = clauses.map(c =>
     '<h2>' + c.title + '</h2><p>' + processClauseBody(c.body, schoolName, pricingRows).replace(/\n/g, '</p><p>') + '</p>'
   ).join('');
-  const htmlContent = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Martial Arts Agreement</title>' +
-    '<style>body{font-family:system-ui;padding:40px;max-width:800px;margin:0 auto;color:#111;line-height:1.6}h1{font-size:24px;text-align:center;margin-bottom:4px}h2{font-size:18px;margin-top:24px;margin-bottom:8px;border-bottom:1px solid #ddd;padding-bottom:4px}p{font-size:14px;margin-bottom:10px}.school-info{text-align:center;color:#666;font-size:14px;margin-bottom:30px}.signature-line{margin-top:40px;border-top:1px solid #333;padding-top:4px;width:300px}table{width:100%;border-collapse:collapse;margin:12px 0}td,th{border:1px solid #ddd;padding:8px;text-align:left;font-size:13px}th{background:#f5f5f5}.footer{text-align:center;margin-top:40px;font-size:12px;color:#999}</style></head><body>' +
+  const htmlContent = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Student Membership Agreement</title>' +
+    '<style>body{font-family:system-ui;padding:40px;max-width:800px;margin:0 auto;color:#111;line-height:1.6}h1{font-size:22px;text-align:center;margin-bottom:4px}h2{font-size:18px;margin-top:24px;margin-bottom:8px;border-bottom:1px solid #ddd;padding-bottom:4px}p{font-size:14px;margin-bottom:10px}.school-info{text-align:center;color:#666;font-size:14px;margin-bottom:30px}.signature-line{margin-top:30px;border-top:1px solid #333;padding-top:4px;width:300px}table{width:100%;border-collapse:collapse;margin:12px 0}td,th{border:1px solid #ddd;padding:8px;text-align:left;font-size:13px}th{background:#f5f5f5}.footer{text-align:center;margin-top:40px;font-size:12px;color:#999}.initial-line{font-size:13px;margin:6px 0}.initial-blank{display:inline-block;width:50px;border-bottom:1px solid #333;margin-right:8px}.chk-line{font-size:14px;margin:4px 0}</style></head><body>' +
     '<h1>' + t('doc_title') + '</h1>' +
     '<div class="school-info"><strong>' + schoolName + '</strong><br>' + address + '<br>' + phone + ' &bull; ' + email + '</div>' +
-    '<p><strong>' + t('doc_date') + '</strong> ' + now + '</p>' +
-    '<p><strong>' + t('doc_student_name') + '</strong> ___________________________</p>' +
-    '<p><strong>' + t('doc_parent_guardian') + '</strong> ___________________________</p>' +
+    '<h2>Student Information</h2>' +
+    '<p><strong>Student Full Name:</strong> ' + (assignedMember ? escHtml(assignedMember.name) : '___________________________________________') + '</p>' +
+    '<p><strong>Date of Birth:</strong> _______________________ &nbsp;&nbsp; <strong>Age:</strong> ___________</p>' +
+    '<p><strong>Parent/Guardian Name (if under 18):</strong> ___________________________________________</p>' +
+    '<p><strong>Address:</strong> ____________________________________________</p>' +
+    '<p><strong>City:</strong> __________________ <strong>State:</strong> ______ <strong>Zip:</strong> ___________</p>' +
+    '<p><strong>Primary Phone:</strong> _______________________________</p>' +
+    '<p><strong>Secondary Phone:</strong> _____________________________</p>' +
+    '<p><strong>Email Address:</strong> ______________________________________________</p>' +
+    '<p><strong>Emergency Contact Name:</strong> __________________________________</p>' +
+    '<p><strong>Emergency Contact Phone:</strong> ____________________________________</p>' +
+    '<p><strong>Relationship:</strong> _____________________________________</p>' +
+    '<h2>Program Information</h2>' +
+    '<p style="font-weight:600;margin-bottom:4px">Student Program:</p>' +
+    (includedPrograms.length ? includedPrograms.map(p => '<div class="chk-line">&#9744; ' + p.name + '</div>').join('') : '<div class="chk-line">&#9744; ___________________________</div>') +
+    '<div class="chk-line">&#9744; Other Program: _______________________________</div>' +
+    '<p style="font-weight:600;margin:12px 0 4px">Enrollment Date:</p><p>' + now + '</p>' +
+    '<p style="font-weight:600;margin:12px 0 4px">Payment Schedule:</p>' +
+    '<div class="chk-line">&#9744; Monthly</div><div class="chk-line">&#9744; Weekly</div><div class="chk-line">&#9744; Other Arrangement Approved by Management: _______________________</div>' +
+    '<p style="font-weight:600;margin:12px 0 4px">Billing Date:</p>' +
+    '<div class="chk-line">&#9744; 1st of the Month</div><div class="chk-line">&#9744; 15th of the Month</div><div class="chk-line">&#9744; Weekly Billing Schedule: _______________________</div>' +
     clausesHTML +
-    '<div style="margin-top:50px"><table style="border:none"><tr><td style="border:none;width:50%"><p><strong>' + t('doc_signature') + '</strong></p><div class="signature-line"></div></td><td style="border:none"><p><strong>' + t('doc_date') + '</strong> _______________</p></td></tr></table></div>' +
-    '<div class="footer">' + schoolName + ' &bull; ' + t('doc_generated') + ' ' + now + '</div>' +
+    '<h2>Acknowledgment of Understanding</h2>' +
+    '<p>By signing below, the Member confirms that they have read this entire Agreement, understand all policies and financial obligations, understand the cancellation and hold policies, understand the risks associated with martial arts training, voluntarily agree to all terms and conditions, and have had the opportunity to ask questions before signing.</p>' +
+    '<p style="font-weight:600;margin-top:16px">Important Policy Initials — please initial each section confirming that you have read and understand the policy:</p>' +
+    ['Tuition and Payment Responsibilities','Weekly and Monthly Payment Terms','3.50% Processing/Convenience Fee','AutoPay Authorization','Late Payment and Returned Payment Fees','No Refund Policy','Cancellation Policy','Membership Hold Policy','$50.00 Reactivation Fee','School Closure and Make-Up Class Policy','Summer Program Policy','Uniform and Equipment Policy','Code of Conduct','Belt Testing Policy','Medical Authorization','Assumption of Risk','Release of Liability','Photo and Video Release'].map(label =>
+      '<div class="initial-line"><span class="initial-blank"></span>' + label + '</div>'
+    ).join('') +
+    '<div style="margin-top:40px">' +
+      '<h2 style="border:none;margin-bottom:4px">Student Signature</h2>' +
+      '<p><strong>Student Name:</strong> ' + (assignedMember ? escHtml(assignedMember.name) : '___________________________________________') + '</p>' +
+      '<div class="signature-line"></div><p style="margin-top:0">Signature</p>' +
+      '<p style="margin-top:20px"><strong>' + t('doc_date') + '</strong> _______________</p>' +
+    '</div>' +
+    '<div style="margin-top:30px">' +
+      '<h2 style="border:none;margin-bottom:4px">Parent/Guardian Signature <span style="font-weight:400;font-size:12px">(required for students under 18)</span></h2>' +
+      '<p><strong>Parent/Guardian Name:</strong> ___________________________________________</p>' +
+      '<div class="signature-line"></div><p style="margin-top:0">Signature</p>' +
+      '<p style="margin-top:20px"><strong>' + t('doc_date') + '</strong> _______________</p>' +
+    '</div>' +
+    '<div style="margin-top:30px">' +
+      '<h2 style="border:none;margin-bottom:4px">' + schoolName + ' Representative</h2>' +
+      '<p><strong>Name:</strong> ___________________________________________</p>' +
+      '<p style="margin-top:20px"><strong>Signature:</strong> _______________________________</p>' +
+      '<p style="margin-top:20px"><strong>' + t('doc_date') + '</strong> _______________</p>' +
+    '</div>' +
+    '<div class="footer">' + schoolName + ' &bull; Student Membership &amp; Financial Agreement With Liability Waiver and Release of Liability &bull; ' + t('doc_generated') + ' ' + now + '</div>' +
     '</body></html>';
 
   const dataUrl = 'data:text/html;charset=utf-8,' + encodeURIComponent(htmlContent);
   state.templates.push({
     id: Date.now(),
-    name: t('doc_default_agreement_name'),
+    name: buildAgreementName(includedPrograms),
     data: dataUrl,
     signed: false,
     signatureData: null,
     signedAt: null,
     uploadedAt: new Date().toISOString(),
-    isHTML: true
+    isHTML: true,
+    memberId: assignedMember ? assignedMember.id : null,
+    memberName: assignedMember ? assignedMember.name : null
   });
+  agModalPresetMemberId = null;
+  persistLocalData();
   renderTemplates();
   showToast('Default agreement generated. You can sign or download it.', 'success');
 }
@@ -9289,6 +9472,9 @@ function uploadTemplate() {
   if (file.type !== 'application/pdf') { showToast('Only PDF files are allowed.', 'error'); return; }
   const reader = new FileReader();
   reader.onload = function(e) {
+    const memberSel = $('ag-member-select');
+    const selectedMemberId = memberSel && memberSel.value ? memberSel.value : '';
+    const assignedMember = selectedMemberId ? state.members.find(m => String(m.id) === String(selectedMemberId)) : null;
     state.templates.push({
       id: Date.now(),
       name: file.name,
@@ -9296,24 +9482,24 @@ function uploadTemplate() {
       signed: false,
       signatureData: null,
       signedAt: null,
-      uploadedAt: new Date().toISOString()
+      uploadedAt: new Date().toISOString(),
+      memberId: assignedMember ? assignedMember.id : null,
+      memberName: assignedMember ? assignedMember.name : null
     });
     input.value = '';
+    agModalPresetMemberId = null;
+    persistLocalData();
     renderTemplates();
     showToast('"' + file.name + '" uploaded.', 'success');
   };
   reader.readAsDataURL(file);
 }
 
-function renderTemplates() {
-  const list = $('template-list');
-  if (!list) return;
-  if (!state.templates.length) {
-    list.innerHTML = '<p class="text-sm text-muted text-center" style="padding:12px">No templates uploaded yet.</p>';
-    return;
-  }
-  list.innerHTML = state.templates.map(t => '<div class="flex gap-3 items-center" style="padding:10px 0;border-bottom:1px solid var(--border)">' +
-    '<span style="flex:1;font-size:13px;font-weight:500">' + t.name + '</span>' +
+function templateRowHTML(t) {
+  return '<div class="flex gap-3 items-center" style="padding:10px 0;border-bottom:1px solid var(--border)">' +
+    '<span style="flex:1;font-size:13px;font-weight:500">' + t.name +
+      (t.memberName ? '<br><span class="text-xs text-muted">&#x1F464; ' + escHtml(t.memberName) + '</span>' : '') +
+    '</span>' +
     '<span class="text-xs text-muted">' + new Date(t.uploadedAt).toLocaleDateString() + '</span>' +
     '<span class="badge ' + (t.signed ? 'badge-green' : 'badge-yellow') + '">' + (t.signed ? 'Signed' : 'Unsigned') + '</span>' +
     '<button class="btn btn-sm btn-secondary" onclick="viewTemplate(' + t.id + ')">View</button>' +
@@ -9322,7 +9508,27 @@ function renderTemplates() {
     '<button class="btn btn-sm btn-secondary" onclick="emailTemplate(' + t.id + ')">Email</button>' +
     '<button class="btn btn-sm btn-secondary" onclick="whatsappTemplate(' + t.id + ')">WhatsApp</button>' +
     '<button class="btn btn-sm btn-danger" onclick="deleteTemplate(' + t.id + ')">Delete</button>' +
-  '</div>').join('');
+  '</div>';
+}
+
+function renderTemplates() {
+  const list = $('template-list');
+  if (list) {
+    list.innerHTML = state.templates.length
+      ? state.templates.map(templateRowHTML).join('')
+      : '<p class="text-sm text-muted text-center" style="padding:12px">No templates uploaded yet.</p>';
+  }
+  renderAgreementsPage();
+}
+
+function renderAgreementsPage() {
+  const list = $('agreements-page-list');
+  if (!list) return;
+  const q = ($('agreements-search') && $('agreements-search').value || '').toLowerCase().trim();
+  const filtered = q ? state.templates.filter(t => t.name.toLowerCase().includes(q) || (t.memberName && t.memberName.toLowerCase().includes(q))) : state.templates;
+  list.innerHTML = filtered.length
+    ? filtered.slice().reverse().map(templateRowHTML).join('')
+    : '<p class="text-sm text-muted text-center" style="padding:20px">' + t('no_agreements_yet') + '</p>';
 }
 
 function getRawHtml(t) {
@@ -9536,6 +9742,7 @@ function saveTemplateSignature() {
   t.signed = true;
   t.signatureData = sigData;
   t.signedAt = new Date().toISOString();
+  persistLocalData();
   closeModal('sign-template-modal');
   renderTemplates();
   showToast('Template signed successfully.', 'success');
@@ -9552,6 +9759,7 @@ function downloadSignedTemplate(id) {
 function deleteTemplate(id) {
   confirmAction('Delete this template?', function() {
     state.templates = state.templates.filter(t => t.id !== id);
+    persistLocalData();
     renderTemplates();
     showToast('Template deleted.', 'info');
   });
@@ -10787,6 +10995,7 @@ function persistLocalData() {
     localStorage.setItem('gmbmaQrCodes', JSON.stringify(state.qrCodes));
     localStorage.setItem('gmbmaSocialPosts', JSON.stringify(state.socialPosts));
     localStorage.setItem('gmbmaContentLibrary', JSON.stringify(state.contentLibrary));
+    localStorage.setItem('gmbmaTemplates', JSON.stringify(state.templates));
     if (state.schoolLogo) localStorage.setItem('gmbmaSchoolLogo', state.schoolLogo);
   } catch(e) {}
   // Sync to Firebase
@@ -11858,11 +12067,19 @@ const I18N = {
     programs_pricing: 'Programs &amp; Pricing', add_program: '+ Add Program',
     clauses_label: 'Clauses', clauses_hint: '(click to edit)', add_clause: '+ Add Clause',
     create_agreement: 'Create Agreement',
-    doc_title: 'Martial Arts School Enrollment Agreement',
+    doc_title: 'Student Membership &amp; Financial Agreement<br>With Liability Waiver and Release of Liability',
     doc_date: 'Date:', doc_student_name: 'Student Name:', doc_parent_guardian: 'Parent/Guardian (if under 18):',
     doc_signature: 'Student/Parent Signature:', doc_generated: 'Generated',
     doc_program: 'Program', doc_monthly_rate: 'Monthly Rate',
-    doc_default_agreement_name: 'Default Enrollment Agreement',
+    doc_default_agreement_name: 'Student Membership & Financial Agreement',
+    agreement_type_label: 'Agreement Type', ag_type_membership: 'Membership Agreement',
+    ag_type_cancellation: 'Cancellation Policy Agreement', ag_type_payment: 'Payment Authorization Agreement',
+    ag_type_photo: 'Photo & Video Release', ag_type_belt: 'Belt Testing Agreement',
+    ag_type_enrollment: 'Enrollment Contract', ag_type_custom: 'Custom Agreement',
+    nav_agreements: 'Agreements', agreements_page_title: 'Agreements', agreements_page_sub: 'All generated and signed agreements',
+    no_agreements_yet: 'No agreements generated yet.',
+    assign_to_member_label: 'Assign to Member', ag_member_general: 'General (no specific member)',
+    ma_agreements: 'Agreements',
     import_members_title: 'Import Members',
     import_csv_desc: 'Upload a CSV file with columns: First Name, Last Name, Email, Phone, Belt Rank, Program',
     csv_file_label: 'CSV File',
@@ -12476,11 +12693,19 @@ const I18N = {
     programs_pricing: 'Programas y Precios', add_program: '+ Agregar Programa',
     clauses_label: 'Cláusulas', clauses_hint: '(clic para editar)', add_clause: '+ Agregar Cláusula',
     create_agreement: 'Crear Acuerdo',
-    doc_title: 'Acuerdo de Inscripción de Escuela de Artes Marciales',
+    doc_title: 'Acuerdo de Membresía Estudiantil y Financiero<br>Con Exención y Liberación de Responsabilidad',
     doc_date: 'Fecha:', doc_student_name: 'Nombre del Estudiante:', doc_parent_guardian: 'Padre/Madre/Tutor (si es menor de 18 años):',
     doc_signature: 'Firma del Estudiante/Padre:', doc_generated: 'Generado',
     doc_program: 'Programa', doc_monthly_rate: 'Tarifa Mensual',
-    doc_default_agreement_name: 'Acuerdo de Inscripción Predeterminado',
+    doc_default_agreement_name: 'Acuerdo de Membresía Estudiantil y Financiero',
+    agreement_type_label: 'Tipo de Acuerdo', ag_type_membership: 'Acuerdo de Membresía',
+    ag_type_cancellation: 'Acuerdo de Política de Cancelación', ag_type_payment: 'Acuerdo de Autorización de Pago',
+    ag_type_photo: 'Autorización de Foto y Video', ag_type_belt: 'Acuerdo de Examen de Cinturón',
+    ag_type_enrollment: 'Contrato de Inscripción', ag_type_custom: 'Acuerdo Personalizado',
+    nav_agreements: 'Acuerdos', agreements_page_title: 'Acuerdos', agreements_page_sub: 'Todos los acuerdos generados y firmados',
+    no_agreements_yet: 'Aún no se han generado acuerdos.',
+    assign_to_member_label: 'Asignar a Miembro', ag_member_general: 'General (sin miembro específico)',
+    ma_agreements: 'Acuerdos',
     import_members_title: 'Importar Miembros',
     import_csv_desc: 'Sube un archivo CSV con las columnas: Nombre, Apellido, Correo, Teléfono, Cinturón, Programa',
     csv_file_label: 'Archivo CSV',
@@ -13511,6 +13736,8 @@ document.addEventListener('DOMContentLoaded', function() {
       if (savedSocialPosts && !state.socialPosts.length) { state.socialPosts = JSON.parse(savedSocialPosts); }
       var savedContentLib = localStorage.getItem('gmbmaContentLibrary');
       if (savedContentLib && !state.contentLibrary.length) { state.contentLibrary = JSON.parse(savedContentLib); }
+      var savedTemplates = localStorage.getItem('gmbmaTemplates');
+      if (savedTemplates && !state.templates.length) { state.templates = JSON.parse(savedTemplates); }
     } catch(e) {}
     // Ensure customCategories has referral default
     if (!state.customCategories.some(function(c){return c.key==='referral_default';})) {
